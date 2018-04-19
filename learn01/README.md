@@ -1,4 +1,4 @@
-#在webpack中使用stylelint
+# 在webpack中使用stylelint
 
 >公司要求在css样式文件中加入stylelint格式审查，并且公司项目基于vue-cli，搜集了一些stylelint的配置方法以及在vue-cli中stylelint-webpack-plugin插件的使用
 
