@@ -49,7 +49,7 @@ module.exports = {
     * 审查指定样式文件（全局安装stylelint）
 
     ```
-    stylelint style.csss
+    stylelint style.css
     ```
 
     * 审查项目中所有样式文件
@@ -69,15 +69,15 @@ module.exports = {
         -结果
 
         ```bash
- style.css
- 1:2   ✖  Expected single space before "{"     block-opening-brace-space-before
- 2:9   ✖  Expected indentation of 2 spaces     indentation                     
- 3:5   ✖  Expected indentation of 2 spaces     indentation                     
- 3:12  ✖  Expected single space after ":"      declaration-colon-space-after   
-          with a single-line declaration                                       
- 4:6   ✖  Expected indentation of 2 spaces     indentation                     
- 5:1   ✖  Unexpected missing end-of-source     no-missing-end-of-source-newline
-          newline
+        style.css
+        1:2   ✖  Expected single space before "{"     block-opening-brace-space-before
+        2:9   ✖  Expected indentation of 2 spaces     indentation                     
+        3:5   ✖  Expected indentation of 2 spaces     indentation                     
+        3:12  ✖  Expected single space after ":"      declaration-colon-space-after   
+                with a single-line declaration                                       
+        4:6   ✖  Expected indentation of 2 spaces     indentation                     
+        5:1   ✖  Unexpected missing end-of-source     no-missing-end-of-source-newline
+                newline
         ```
     
 ## 在 vue-cli 中使用 stylelint-webpack-plugin 插件
