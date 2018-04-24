@@ -2,11 +2,11 @@
 
 > 公司内部vue进阶分享
 
-<font color=red>注：带例子的都是非常实用的基础用法！！</font>
+注：带例子的都是非常实用的基础用法！！
 
 ## 修饰符
 
-* 事件修饰符
+* ### 事件修饰符
 
     * `.stop` (阻止事件冒泡) 
     
@@ -97,7 +97,7 @@
     
     * `.once` (点击事件将只会触发一次)
 
-* 按键修饰符
+* ### 按键修饰符
 
     在监听键盘事件时，我们经常需要检查常见的键值。Vue 允许为 v-on 在监听键盘事件时添加按键修饰符：
 
@@ -126,10 +126,31 @@
     // 可以使用 `v-on:keyup.f1`
     Vue.config.keyCodes.f1 = 112
     ```
+
+* ### 系统修饰键
+  
+  2.1.0 新增
+
+  > 注意：在 Mac 系统键盘上，meta 对应 command 键 (⌘)。在 Windows 系统键盘 meta 对应 Windows 徽标键 (⊞)。在 Sun 操作系统键盘上，meta 对应实心宝石键 (◆)。在其他特定键盘上，尤其在 MIT 和 Lisp 机器的键盘、以及其后继产品，比如 Knight 键盘、space-cadet 键盘，meta 被标记为“META”。在 Symbolics 键盘上，meta 被标记为“META”或者“Meta”。
+
+  * `ctrl`
+
+    ```html
+      <!-- Ctrl + Click -->
+      <div @click.ctrl="doSomething">Do something</div>
+    ```
+  * `alt`
+
+    ```html
+      <!-- Alt + C -->
+      <input @keyup.alt.67="clear">
+    ```
+  * `shift`
+  * `meta`
     
-* `v-model` 的修饰符
+* ### `v-model` 的修饰符
     
-    *  `lazy` (在“change”时而非“input”时更新)
+    *  `.lazy` (在“change”时而非“input”时更新)
     
     ```html
     <input v-model.lazy="msg" >
@@ -147,7 +168,7 @@
     <input v-model.trim="msg">
     ```
 
-* `.sync` 修饰符 2.3.0+
+* ### `.sync` 修饰符 2.3.0+
 
   用于props的“双向绑定”，在vue1.x中，子组件可以直接改变父组件所绑定的值，非常方便但破坏了单向数据设计，在vue2.x中被移除。
   
@@ -178,3 +199,102 @@
   ```
 
   这个例子会为 `foo` 和 `bar` 同时添加用于更新的 v-on 监听器。
+
+
+## 计算属性、侦听器、过滤器
+
+* ### 计算属性
+
+  ```html
+  <p>单价：{{price}}</p>
+  <p>数量：{{amount}}</p>
+  <p>折扣：{{discount}}</p>
+  <p>邮费：{{postage}}</p>
+  <!-- bad -->
+  <p>总价：{{price * amount * discount + postage}}</p>
+  <!-- good -->
+  <p>总价：{{total}}</p>
+  ```
+
+  ```js
+  computed: {
+      total: function () {
+        return this.price * this.amount * this.discount + this.postage
+      }
+  }
+  ```
+  模板内的表达式非常便利，但是写入过多的逻辑会导致代码可读性变差，后期难以维护，因此需要使用vue的计算属性。
+
+  计算属性会根据它的相关依赖（price、amount等）发生改变会重新求值。同理，计算属性下没有响应式依赖，那计算属性将不再更新
+
+* ### 侦听器
+
+  ```html
+  <template>
+    <ul class="page" @click="onPagerClick($event)">
+      <li class="page-item">1</li>
+      <li class="page-item">2</li>
+      <li class="page-item">3</li>
+    </ul>
+  </template>
+  ```
+
+  ```js
+  export default {
+    data() {
+      return {
+        page: 1,
+      };
+    },
+    methods: {
+      onPagerClick(event) {
+        const target = event.target;
+        if (target.tagName === 'LI') {
+          this.page = Number(target.textContent);
+        }
+      },
+    },
+    watch: {
+      page() {
+        this.getData() //请求数据
+      }
+    },
+  };
+
+  ```
+
+  与计算属性类似，且绝大多数数情况下计算属性会更合适，但遇到在数据变化时执行异步或开销较大的操作时，通过`watch`去监听数据，响应数据变化会更合适。
+
+* ### 过滤器
+
+  ```html
+  <p>时间：{{time | getTime}}</p> <!-- 时间：2018-04-24 15:34:26 --> 
+  <p>时间：{{time | getTime | localTime}}</p> <!-- 时间：2018-04-24 15:34:26北京时间 --> 
+  <p>时间：{{time | newTime('上午')}}</p>  <!-- 时间：2018-04-24 15:34:26上午 -->
+  <p :time="time | getTime"></p> <!-- 2.1.0+ 支持在v-bind上添加过滤器 -->
+  ```
+
+  ```js
+  data() {
+    return {
+      time: 1524554794000,
+    };
+  },
+  filters: {
+    getTime(time) {
+      return moment(time).format('YYYY-MM-DD HH:ss:mm')
+    },
+    localTime(time) {
+      return time + '北京时间'
+    },
+    newTime(time, data) {
+      return moment(time).format('YYYY-MM-DD HH:ss:mm') + data
+    }，
+  }
+
+  //全局注册
+  Vue.filter('getTime',time => (
+    moment(time).format('YYYY-MM-DD HH:ss:mm')
+  ))
+  ```
+  自定义过滤器，可以用于一些常见的文本格式化(如时间戳转时间格式)
