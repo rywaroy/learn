@@ -46,7 +46,7 @@ module.exports = {
 
 * 使用 
 
-    * 审查指定样式文件（全局安装stylelint）
+    * 审查指定样式文件（全局安装stylelint）
 
     ```
     stylelint style.css
