@@ -16,7 +16,7 @@ npm i -g parcel-bundler
 npm i node-sass -S
 ```
 
-### 打包js 默认路径在当前目录下 dist文件里创建 `index.js` `index.map` (默认支持es6)
+### 打包js 默认路径在当前目录下 dist文件里创建 `index.js` `index.map` (默认支持es6)
 ```js
 //index.js
 

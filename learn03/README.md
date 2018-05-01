@@ -170,7 +170,7 @@
 
 * ### `.sync` 修饰符 2.3.0+
 
-  用于props的“双向绑定”，在vue1.x中，子组件可以直接改变父组件所绑定的值，非常方便但破坏了单向数据设计，在vue2.x中被移除。
+  用于props的“双向绑定”，在vue1.x中，子组件可以直接改变父组件所绑定的值，非常方便但破坏了单向数据设计，在vue2.x中被移除。
   
   在vue2.3.0中被重新加回，但这次只作为一个编译时的语法糖存在。它会被扩展为一个自动更新父组件属性的 `v-on` 监听器
 
@@ -223,9 +223,9 @@
       }
   }
   ```
-  模板内的表达式非常便利，但是写入过多的逻辑会导致代码可读性变差，后期难以维护，因此需要使用vue的计算属性。
+  模板内的表达式非常便利，但是写入过多的逻辑会导致代码可读性变差，后期难以维护，因此需要使用vue的计算属性。
 
-  计算属性会根据它的相关依赖（price、amount等）发生改变会重新求值。同理，计算属性下没有响应式依赖，那计算属性将不再更新
+  计算属性会根据它的相关依赖（price、amount等）发生改变会重新求值。同理，计算属性下没有响应式依赖，那计算属性将不再更新
 
 * ### 侦听器
 
@@ -263,9 +263,10 @@
 
   ```
 
-  与计算属性类似，且绝大多数数情况下计算属性会更合适，但遇到在数据变化时执行异步或开销较大的操作时，通过`watch`去监听数据，响应数据变化会更合适。
+  与计算属性类似，且绝大多数数情况下计算属性会更合适，但遇到在数据变化时执行异步或开销较大的操作时，通过`watch`去监听数据，响应数据变化会更合适。
 
 * ### 过滤器
+
 
   ```html
   <p>时间：{{time | getTime}}</p> <!-- 时间：2018-04-24 15:34:26 --> 
@@ -297,4 +298,135 @@
     moment(time).format('YYYY-MM-DD HH:ss:mm')
   ))
   ```
-  自定义过滤器，可以用于一些常见的文本格式化(如时间戳转时间格式)
+  自定义过滤器，可以用于一些常见的文本格式化(如时间戳转时间格式)
+
+## 组件
+
+* ### 自定义事件
+
+  父组件
+
+  ```html
+  <template>
+    <child @say="saywhat"/>
+  </template>
+  <script>
+  import child from './Child'
+  export default {
+    name: 'parent',
+    methods: {
+      saywhat(word) {
+        console.log(word)
+      }
+    },
+    components: {
+      child,
+    }
+  }
+  </script>
+  ```
+
+  子组件
+
+  ```html
+  <template>
+    <div @click="isay">child</div>
+  </template>
+  <script>
+  export default {
+    name: 'child',
+    methods: {
+      isay() {
+        this.$emit('say', '我是子组件')
+      }
+    }
+  }
+  </script>
+  ```
+
+* ### 自定义组件的`v-model`
+
+  ```js
+  // Radio.vue
+  export default {
+    model: {
+      prop: 'value',
+      event: 'change',
+    },
+    props: {
+      label: [String, Number],
+      value: [String, Number],
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    methods: {
+      check() {
+        if (!this.disabled) {
+          this.$emit('change', this.label);
+        }
+      },
+    },
+  }
+  ```
+
+  ```html
+  <Radio v-model="value" label="选项1" />
+  ```
+
+  等价于
+
+  ```html
+  <Radio
+    :value="value"
+    @change="val => { value = val }"
+    label="选项1"/>
+  ```
+
+* ### 使用插槽分发内容
+
+  * #### 单个插槽
+
+    ```html
+    <!-- Child.vue -->
+
+    <template>
+      <div @click="isay">
+        <slot>默认显示内容</slot>
+      </div>
+    </template>
+    ```
+
+    ```html
+    <!-- Parent.vue -->
+
+    <!-- 显示：默认显示内容 -->
+    <child @say="saywhat"></child>
+
+    <!-- 显示：我是子组件 -->
+    <child @say="saywhat">我是子组件</child>
+
+    ```
+
+  * #### 具名插槽
+
+    移动端头部
+
+    ```html
+    <template>
+      <header>
+        <div class="back"></div>
+        <div class="title">{{title}}</div>
+        <slot name="icon"></slot>
+      </header>
+    </template>
+    ```
+
+    单个页面
+
+    ```html
+    <my-header title="个人中心">
+      <div class="set-icon" slot="icon"></div>
+    </my-header>
+    ```
