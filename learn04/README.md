@@ -213,7 +213,7 @@ router.go(-20)
 * append
 
   * 类型： `boolean`
-  * 默认值： `false`
+  * 默认值： `false`
 
   设置 `append` 属性后，则在当前（相对）路径前添加基路径。例如，我们从 `/a` 导航到一个相对路径 `b`，如果没有配置 `append`，则路径为 `/b`，如果配了，则为 `/a/b`
 
@@ -232,11 +232,11 @@ router.go(-20)
 
  精确匹配
 
-## 重定向和别名
+## 重定向和别名
 
-### 重定向
+### 重定向
 
-官网例子：
+官网例子：
 
 ```js
 const router = new VueRouter({
@@ -269,12 +269,12 @@ const router = new VueRouter({
 
 重要！
 
-一般用于路由变化时，导航守卫通过跳转或取消的方式守卫导航。例如在未登录时，无法跳转到需要登录的页面，从而引入到登录页面
+一般用于路由变化时，导航守卫通过跳转或取消的方式守卫导航。例如在未登录时，无法跳转到需要登录的页面，从而引入到登录页面
 
 ```js
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    // 检查路由 meta 属性，判断requiresAuth 的 值
+    // 检查路由 meta 属性，判断requiresAuth 的 值
     if (!auth.loggedIn()) {
       next({
         path: '/login',
@@ -289,13 +289,13 @@ router.beforeEach((to, from, next) => {
 })
 ```
 
-其中守卫方法接受3个参数:
+其中守卫方法接受3个参数:
 
 * `to` : 即将进入的路由对象
 * `from` : 当前离开的路由
-* `next` : 路由跳转方法（必须调用）
+* `next` : 路由跳转方法（必须调用）
 
-除了 `beforeEach` , 与之相反 还有一个 `afterEach` , `afterEach`不会接受 next 函数也不会改变导航本身
+除了 `beforeEach` , 与之相反 还有一个 `afterEach` , `afterEach`不会接受 next 函数也不会改变导航本身
 
 ```js
 router.afterEach((to, from) => {
