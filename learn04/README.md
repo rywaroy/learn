@@ -1,10 +1,10 @@
 # vue-router的基础用法
 
-> 公司内部vue-router进阶分享
+> 公司内部vue-router分享
 
 ## 路由的配置
 
-创建一个个人中心页面 Center.vue
+创建一个个人中心页面 Center.vue
 
 ```html
 <template>
@@ -12,7 +12,7 @@
 </template>
 ```
 
-在 `scr/router/index.js` 中配置个人中心页面路由
+在 `scr/router/index.js` 中配置个人中心页面路由
 
 ```js
 import Vue from 'vue';
@@ -38,7 +38,7 @@ export default new Router({
 
 ## 动态路由
 
-创建一个商品页面 Product.vue
+创建一个商品页面 Product.vue
 
 ```html
 <template>
@@ -56,6 +56,11 @@ export default new Router({
 import Vue from 'vue';
 import Router from 'vue-router';
 import Product from '@/components/Product';
+
+const asyncComponent = name => {
+  return resolve => require([`@/components/${name}`], resolve)
+}
+const Product = asyncComponent('Product')
 
 Vue.use(Router);
 
@@ -112,7 +117,7 @@ export default new Router({
       component: Center,
       children: [
         {
-          path: 'set',  //可以是绝对路径或者相对路径
+          path: 'set',  //可以是绝对路径或者相对路径
           name: 'set',
           component: Set,
         },
@@ -123,7 +128,7 @@ export default new Router({
 
 ```
 
-在center中设置子路由的视图组件，子路由的所有内容会展示在视图组件中
+在center中设置子路由的视图组件，子路由的所有内容会展示在视图组件中
 
 ```html
 <template>
@@ -138,7 +143,7 @@ export default new Router({
 
 ![](learn04_03.png)
 
-## 路由的跳转
+## 路由的跳转
 
 使用 `router-link` 跳转
 
@@ -172,13 +177,13 @@ router.push({ path: 'product', query: { id: 123 }})
 //替换history记录
 router.replace({ path: 'product' })
 
-//前进后退
+//前进后退
 router.go(1)
 router.go(-1)
-router.go(-20) 
+router.go(-20)
 ```
 
-路由跳转带参数
+路由跳转带参数
 
 ```html
 <!-- 跳转到 path 为 '/product/111' 的路由 -->
@@ -197,13 +202,13 @@ router.go(-20)
 * replace
 
   * 类型： `boolean`
-  * 默认值： `false`
+  * 默认值： `false`
 
   ```html
   <router-link :to="{ path: '/product/111' }" replace>product</router-link>
   ```
 
-  类似于 `window.locaion.replace()` 跳转不会留下history记录
+  类似于 `window.locaion.replace()` 跳转不会留下history记录
 
 * append
 
@@ -216,13 +221,114 @@ router.go(-20)
 * active-class
 
   * 类型： `string`
-  * 默认值： `router-link-active`
+  * 默认值： `router-link-active`
 
   在当前路由匹配到 `router-link` 设置的路由时， `router-link` 会增加默认 `router-link-active`的类，可以增加高亮样式。设置`active-class`可以指定类名
 
 * exact
 
   * 类型： `boolean`
-  * 默认值： `false`
+  * 默认值： `false`
 
-  精确匹配
+ 精确匹配
+
+## 重定向和别名
+
+### 重定向
+
+官网例子：
+
+```js
+const router = new VueRouter({
+  routes: [
+    { path: '/a', redirect: '/b' },
+    { path: '/a', redirect: { name: 'foo' }}
+  ]
+})
+```
+
+假设有2个路由 `/a/b` 和 `/a/c`，`b` 和 `c` 都是 `a` 的子路由，那可以将 `/a/` 路由重定向为 `/a/b`， 使得默认访问`b`
+
+
+### 别名
+
+官网例子:
+
+```js
+const router = new VueRouter({
+  routes: [
+    { path: '/a', component: A, alias: '/b' }
+  ]
+})
+```
+
+`/b` 是 `/a` 的别名，访问 `/b` 会匹配 `/a`，引用`A组件`, 与重定向不同的是 URL 会保持 `/b`
+
+
+## 导航守卫
+
+重要！
+
+一般用于路由变化时，导航守卫通过跳转或取消的方式守卫导航。例如在未登录时，无法跳转到需要登录的页面，从而引入到登录页面
+
+```js
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    // 检查路由 meta 属性，判断requiresAuth 的 值
+    if (!auth.loggedIn()) {
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath }
+      })
+    } else {
+      next()
+    }
+  } else {
+    next() // 确保一定要调用 next()
+  }
+})
+```
+
+其中守卫方法接受3个参数:
+
+* `to` : 即将进入的路由对象
+* `from` : 当前离开的路由
+* `next` : 路由跳转方法（必须调用）
+
+除了 `beforeEach` , 与之相反 还有一个 `afterEach` , `afterEach`不会接受 next 函数也不会改变导航本身
+
+```js
+router.afterEach((to, from) => {
+  // ...
+})
+```
+
+
+### 组件内守卫
+
+组件内独享，针对于当个页面
+
+* `beforeRouteEnter`
+* `beforeRouteUpdate`
+* `beforeRouteLeave`
+
+```js
+const Foo = {
+  template: `...`,
+  beforeRouteEnter (to, from, next) {
+    // 在渲染该组件的对应路由被 confirm 前调用
+    // 不！能！获取组件实例 `this`
+    // 因为当守卫执行前，组件实例还没被创建
+  },
+  beforeRouteUpdate (to, from, next) {
+    // 在当前路由改变，但是该组件被复用时调用
+    // 举例来说，对于一个带有动态参数的路径 /foo/:id，在 /foo/1 和 /foo/2 之间跳转的时候，
+    // 由于会渲染同样的 Foo 组件，因此组件实例会被复用。而这个钩子就会在这个情况下被调用。
+    // 可以访问组件实例 `this`
+  },
+  beforeRouteLeave (to, from, next) {
+    // 导航离开该组件的对应路由时调用
+    // 可以访问组件实例 `this`
+  }
+}
+```
