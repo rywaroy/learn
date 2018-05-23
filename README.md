@@ -4,3 +4,4 @@
 * [parcel 轻量级打包工具](https://github.com/rywaroy/learn/tree/master/learn02)
 * [vue进阶](https://github.com/rywaroy/learn/tree/master/learn03)
 * [vue-router的基础用法](https://github.com/rywaroy/learn/tree/master/learn04)
+* [vuex的基础用法](https://github.com/rywaroy/learn/tree/master/learn05)
