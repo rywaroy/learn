@@ -5,3 +5,4 @@
 * [vue进阶](https://github.com/rywaroy/learn/tree/master/learn03)
 * [vue-router的基础用法](https://github.com/rywaroy/learn/tree/master/learn04)
 * [vuex的基础用法](https://github.com/rywaroy/learn/tree/master/learn05)
+* [Array](https://github.com/rywaroy/learn/tree/master/learn06)
