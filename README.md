@@ -6,3 +6,4 @@
 * [vue-router的基础用法](https://github.com/rywaroy/learn/tree/master/learn04)
 * [vuex的基础用法](https://github.com/rywaroy/learn/tree/master/learn05)
 * [Array](https://github.com/rywaroy/learn/tree/master/learn06)
+* [Object.defineProperty](https://github.com/rywaroy/learn/tree/master/learn07)
