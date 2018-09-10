@@ -1,6 +1,6 @@
 # Promise对象
 
-> 介绍Promise对象、用法以及实现原理
+> 介绍Promise对象、用法
 
 ## 基本用法
 
@@ -151,3 +151,20 @@ const promise = Promise.all([
 ```
 
 `Promise.all` 方法接收一个数组作为参数，每一项都是`Promise`实例
+
+`promise`的状态由`promise1`、`promise2`、`promise3`决定，只有当`promise1`、`promise2`、`promise3`的状态都变成`Fulfilled`,此时`promise1`、`promise2`、`promise3`的返回值组成一个数组，传递给`promise`的回调函数（数组的顺序不是按promise的执行顺序）相反，其中有一个状态变成`Rejected`,`promise`的状态就变成`Rejected`，第一个被`Rejecte`的实例返回值会传递给`promise`的回调函数。
+
+## Promise.race()
+
+与`Promise.all`相似，接收一个数组作为参数，每一项都是`Promise`实例。
+
+```js
+
+const promise = Promise.race([
+  promise1(),
+  promise2(),
+  promise3(),
+]);
+
+```
+其中`promise1`、`promise2`、`promise3`有一个实例率先改变状态，`promise`的状态就跟着改变。
