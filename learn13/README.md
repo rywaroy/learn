@@ -99,3 +99,54 @@ handleRequest(ctx, fnMiddleware) {
   return fnMiddleware(ctx).then(handleResponse).catch(onerror); // 执行中间件数组所有函数, 并结束时调用 respond 函数
 }
 ```
+
+callback中，先用`compose`函数处理了中间件，这在[koa 中间件机制](https://github.com/rywaroy/learn/tree/master/learn12)中讲过，这里不做深究。 然后进行了错误监听，使用`createContext`函数封装了node http原生`req` `res`对象，返回了`context`，最后返回`handleRequest`函数。
+
+在`handleRequest`中，接收了`context`对象和`fnMiddleware`, 传入的`fnMiddleware`函数其实是在准备阶段整合过的中间件，它会安装顺序执行或者通过next把执行权提前交给下一个中间件，直到执行玩所有中间件，最后返回一个Promise实例。之后调用`handleResponse`中返回的`respond`函数。
+
+### createContext
+
+```js
+createContext(req, res) {
+  const context = Object.create(this.context);
+  const request = context.request = Object.create(this.request);
+  const response = context.response = Object.create(this.response);
+  context.app = request.app = response.app = this;
+  context.req = request.req = response.req = req;
+  context.res = request.res = response.res = res;
+  request.ctx = response.ctx = context;
+  request.response = response;
+  response.request = request;
+  context.originalUrl = request.originalUrl = req.url;
+  context.state = {};
+  return context;
+}
+```
+
+对于 `createContext` 函数, 它用于整合`req` `res` `request` `response`生成一个新的 `context` 对象作为参数传递给中间件。
+
+```js
+context = {
+  request: { // 继承 koa request
+    // ...
+    app,
+    req,
+    res,
+    ctx,
+    response, 
+  }, 
+  response: { // 继承 koa response 
+    // ...
+    app,
+    req,
+    res,
+    ctx,
+    request, 
+  },
+  app, // 应用程序实例引用
+  req, // node request
+  res, // node response
+  originalUrl, // url
+  state, // state
+}
+```
