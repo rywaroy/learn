@@ -20,3 +20,9 @@ service nginx restart
 /etc/init.d/nginx stop
 /etc/init.d/nginx start
 ```
+
+重启mysql
+
+```
+service mysqld restart
+```
