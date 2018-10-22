@@ -148,5 +148,76 @@ context = {
   res, // node response
   originalUrl, // url
   state, // state
+  // ...
 }
 ```
+
+![](./learn13_01.png)
+
+
+### respond
+
+对于 respond 函数, 其核心就是根据不同类型的数据对 http 的响应头部与响应体 body 做对应的处理。
+
+```js
+function respond(ctx) {
+  // allow bypassing koa
+  if (false === ctx.respond) return;
+
+  const res = ctx.res;
+  // writable 是原生的 response 对象的 writeable 属性, 检查是否是可写流
+  if (!ctx.writable) return;
+
+  let body = ctx.body;
+  const code = ctx.status;
+
+  // ignore body
+  // 如果响应的 statusCode 是属于 body 为空的类型, 例如 204, 205, 304, 将 body 置为 null
+  if (statuses.empty[code]) {
+    // strip headers
+    ctx.body = null;
+    return res.end();
+  }
+
+  // 如果是 HEAD 方法
+  if ('HEAD' == ctx.method) {
+    // headersSent 属性 Node 原生的 response 对象上的, 用于检查 http 响应头部是否已经被发送
+    if (!res.headersSent && isJSON(body)) {
+      // 如果头部未被发送, 那么添加 length 头部
+      ctx.length = Buffer.byteLength(JSON.stringify(body));
+    }
+    return res.end();
+  }
+
+  // status body
+  // 如果 body 值为空
+  if (null == body) {
+    // body 值为 context 中的 message 属性或 code
+    body = ctx.message || String(code);
+    if (!res.headersSent) {
+      // 修改头部的 type 与 length 属性
+      ctx.type = 'text';
+      ctx.length = Buffer.byteLength(body);
+    }
+    return res.end(body);
+  }
+
+  // responses
+  // 对 body 为 buffer 类型的进行处理
+  if (Buffer.isBuffer(body)) return res.end(body);
+  // 对 body 为字符串类型的进行处理
+  if ('string' == typeof body) return res.end(body);
+  // 对 body 为流形式的进行处理
+  if (body instanceof Stream) return body.pipe(res);
+
+  // body: json
+  body = JSON.stringify(body);
+  // 对 body 为 json 格式的数据进行处理, 1: 将 body 转化为 json 字符串, 2: 添加 length 头部信息
+  if (!res.headersSent) {
+    ctx.length = Buffer.byteLength(body);
+  }
+  res.end(body);
+}
+```
+
+在 respond 函数中, 主要是运用 node http 模块中的响应对象中的 end 方法与 koa context 对象中代理的属性进行最终响应对象的设置。
