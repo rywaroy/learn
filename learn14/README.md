@@ -212,7 +212,7 @@ function remainingWait(time) {
 
   return maxing
     ? Math.min(timeWaiting, maxWait - timeSinceLastInvoke)
-    : timeWaitingz
+    : timeWaiting
 }
 ```
 
@@ -248,12 +248,44 @@ function trailingEdge(time) {
 
 ```js
 function invokeFunc(time) {
-    const args = lastArgs
-    const thisArg = lastThis
-    //  重置
-    lastArgs = lastThis = undefined;
-    lastInvokeTime = time; // 设置最新的时间
-    result = func.apply(thisArg, args);
-    return result;
-  }
+  const args = lastArgs
+  const thisArg = lastThis
+  //  重置
+  lastArgs = lastThis = undefined;
+  lastInvokeTime = time; // 设置最新的时间
+  result = func.apply(thisArg, args);
+  return result;
+}
 ```
+
+lodash的`debounce`函数主要流程已经介绍完了，画了一张流程图来展示。
+
+![](learn14_02.jpg)
+
+### throttle
+
+```js
+function throttle(func, wait, options) {
+  let leading = true
+  let trailing = true
+
+  if (typeof func != 'function') {
+    throw new TypeError('Expected a function')
+  }
+  if (isObject(options)) {
+    leading = 'leading' in options ? !!options.leading : leading
+    trailing = 'trailing' in options ? !!options.trailing : trailing
+  }
+  return debounce(func, wait, {
+    'leading': leading,
+    'maxWait': wait,
+    'trailing': trailing
+  })
+}
+
+export default throttle
+```
+
+lodash的`throttle`函数就比较简单了，直接返回了`debounce`。默认`leading` `trailing`都为`true`, 把`wait`参数作为`maxWait`传入`debounce`。
+
+细细想来，这好像也没什么问题。。。
