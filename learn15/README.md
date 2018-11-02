@@ -75,6 +75,23 @@ const router = new Router({
 
 `sensitive` `strict` 最后会被传入 url正则模块`path-to-regexp`
 
+`sensitive`设置`true`时，会验证大小写
+
+```js
+const router = new Router({
+  sensitive: true
+});
+
+router.get('/a', async ctx => {
+  ctx.body = 'a';
+});
+
+// localhost:8080/a => a
+// localhost:8080/A => Not Found
+```
+
+
+设置了`routerPath`，任何请求都会转发到`routerPath`的路由上
 
 ```js
 const router = new Router({
@@ -93,5 +110,5 @@ router.get('/b', async ctx => {
 // localhost:8080/b => b
 ```
 
-设置了`routerPath`，任何请求都会转发到`routerPath`的路由上
+
 
