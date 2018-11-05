@@ -277,9 +277,18 @@ layer是负责存储路由监听的信息的，每次注册路由时的URL，URL
 
 ```js
 const pathToRegexp = require('path-to-regexp');
-
-const re = pathToRegexp('/article/:id');
+let keys = [];
+const re = pathToRegexp('/article/:id', keys);
 console.log(re);  // /^\/article\/((?:[^\/]+?))(?:\/(?=$))?$/i
+console.log(keys);
+// [ { name: 'id',
+// prefix: '/',
+// delimiter: '/',
+// optional: false,
+// repeat: false,
+// partial: false,
+// asterisk: false,
+// pattern: '[^\\/]+?' } ]
 ```
 
 2. exec
@@ -307,3 +316,214 @@ const pathToRegexp = require('path-to-regexp');
 const url = '/article/:id';
 console.log(pathToRegexp.parse(url));
 ```
+
+打印结果
+
+```js
+[ '/article',
+  { name: 'id',
+    prefix: '/',
+    delimiter: '/',
+    optional: false,
+    repeat: false,
+    partial: false,
+    asterisk: false,
+    pattern: '[^\\/]+?' } ]
+```
+
+4. compile
+
+快速填充 url 字符串的参数值
+
+```js
+const pathToRegexp = require('path-to-regexp');
+
+const url = '/article/:id/:name';
+const data = {
+  id: 2,
+  name: 'hello'
+}
+
+console.log(pathToRegexp.compile(url)(data)); // /article/2/hello
+```
+
+### Layer match
+
+```js
+Layer.prototype.match = function (path) {
+  return this.regexp.test(path);
+};
+```
+
+验证路由是否能匹配成功
+
+```js
+const layer = new Layer('/article/:id', ['get'], []);
+
+console.log(layer.match('/article/123')); // true
+```
+
+### Layer captures
+
+```js
+Layer.prototype.captures = function (path) {
+  if (this.opts.ignoreCaptures) return [];
+  return path.match(this.regexp).slice(1);
+};
+```
+
+捕获正则匹配结果, 如果设置了`ignoreCaptures`为`true`，则忽略返回空数组
+
+```js
+const layer = new Layer('/article/:id/:name', ['get'], []);
+
+console.log(layer.captures('/article/123/zhang')); // [ '123', 'zhang' ]
+```
+
+### Layer params
+
+```js
+Layer.prototype.params = function (path, captures, existingParams) {
+  var params = existingParams || {};
+
+  for (var len = captures.length, i=0; i<len; i++) {
+    if (this.paramNames[i]) {
+      var c = captures[i];
+      params[this.paramNames[i].name] = c ? safeDecodeURIComponent(c) : c;
+    }
+  }
+
+  return params;
+};
+```
+
+```js
+const layer = new Layer('/article/:id/:name', ['get'], []);
+
+const params = {};
+layer.params('/article/123/zhang', ['123', 'zhang'], params);
+console.log(params) // { id: '123', name: 'zhang' }
+```
+
+`koa-router`用此方法将params挂载在`ctx.params`上，因此可以通过`ctx.params.id` 和 `ctx.params.name` 来获取对应匹配到的id 和 name。
+
+### Layer param
+
+在Layer的`param`方法之前，先来看看Router的`param`
+
+```js
+Router.prototype.register = function (path, methods, middleware, opts) {
+  //...
+  Object.keys(this.params).forEach(function (param) {
+    route.param(param, this.params[param]);
+  }, this);
+  // ...
+}
+
+Router.prototype.param = function (param, middleware) {
+  this.params[param] = middleware;
+  this.stack.forEach(function (route) {
+    route.param(param, middleware);
+  });
+  return this;
+};
+```
+
+可以发现，无论是当路由注册时，还是调用Router的`param`，都会使得Router的路由栈`stack`中的每个Layer实例`route`调用他自身的`param`方法。
+
+再来看一个例子
+
+```js
+function m1 (ctx, next) {
+  ctx.body = ctx.name
+}
+
+function m2 (param, ctx, next) {
+  console.log(1)
+  ctx.name = 'zzh'
+  next()
+}
+
+function m3 (param, ctx, next) {
+  console.log(2)
+  next()
+}
+
+router.register('/article/:id/:name', ['GET'], m1);
+
+router.param('id', m2)
+
+router.param('name', m3)
+
+// 1
+// 2
+// zzh
+```
+
+Router的`param`可以做一些参数校验的操作，从中间件执行顺序看，先是`m2` `m3` 最后执行路由的中间件 `m1`。
+
+```js
+Layer.prototype.param = function (param, fn) {
+  var stack = this.stack;
+  var params = this.paramNames;
+  var middleware = function (ctx, next) {
+    return fn.call(this, ctx.params[param], ctx, next);
+  };
+  middleware.param = param; // 给中间添加param属性
+
+  var names = params.map(function (p) { // 获取prams.name集成的数组 [id, name]
+    return p.name;
+  });
+
+  var x = names.indexOf(param); // 判断传入的param在names的位置
+  if (x > -1) {
+    stack.some(function (fn, i) {
+       // 判断中间件函数是否存在param,不存在则是路由中间件
+       // 如果存在param，则根据param在names的顺序决定。 如例子中的 m2.id 会优先 m3.name
+      if (!fn.param || names.indexOf(fn.param) > x) {
+        stack.splice(i, 0, middleware); // 插入栈, 最终结果[m2, m3, m1]
+        return true;
+      }
+    });
+  }
+
+  return this;
+};
+```
+
+`param`方法会将传入的中间件`fn`依照layer的`paramNames`中的顺序，放入`stack`中间栈中，保证一些有依赖关系的中间件会按序执行。
+
+###  Layer setPrefix
+
+```js
+Router.prototype.prefix = function (prefix) {
+  prefix = prefix.replace(/\/$/, '');
+
+  this.opts.prefix = prefix;
+
+  this.stack.forEach(function (route) {
+    route.setPrefix(prefix);
+  });
+
+  return this;
+};
+```
+
+Router的`prefix`会遍历路由栈`stack`，每个Layer实例都会执行`setPrefix`方法并传入路由前缀`prefix`。
+
+```js
+Layer.prototype.setPrefix = function (prefix) {
+  if (this.path) {
+    this.path = prefix + this.path;
+    this.paramNames = [];
+    this.regexp = pathToRegExp(this.path, this.paramNames, this.opts);
+  }
+
+  return this;
+};
+```
+
+而在Layer的`setPrefix`中，会把接收的路由前缀`prefix`拼接在路径前面并且生成新的路由正则。由于前缀是拼接的，多次调用`setPrefix`会是前缀累加，并不会覆盖。
+
+###  Layer url
+
