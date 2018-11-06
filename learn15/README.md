@@ -525,5 +525,42 @@ Layer.prototype.setPrefix = function (prefix) {
 
 而在Layer的`setPrefix`中，会把接收的路由前缀`prefix`拼接在路径前面并且生成新的路由正则。由于前缀是拼接的，多次调用`setPrefix`会是前缀累加，并不会覆盖。
 
-###  Layer url
+## url
 
+```js
+Router.prototype.url = function (name, params) {
+  var route = this.route(name);
+
+  if (route) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return route.url.apply(route, args);
+  }
+
+  return new Error("No route found for name: " + name);
+};
+```
+
+Router的`url`可以生成对应的`path`，官网文档的例子：
+
+```js
+router.get('user', '/users/:id', (ctx, next) => {
+  // ...
+});
+
+router.url('user', 3);
+// => "/users/3"
+
+router.url('user', { id: 3 });
+// => "/users/3"
+
+router.use((ctx, next) => {
+  // redirect to named route
+  ctx.redirect(ctx.router.url('sign-in'));
+})
+
+router.url('user', { id: 3 }, { query: { limit: 1 } });
+// => "/users/3?limit=1"
+
+router.url('user', { id: 3 }, { query: "limit=1" });
+// => "/users/3?limit=1"
+```
