@@ -564,3 +564,391 @@ router.url('user', { id: 3 }, { query: { limit: 1 } });
 router.url('user', { id: 3 }, { query: "limit=1" });
 // => "/users/3?limit=1"
 ```
+
+实际上`Router.url`先是调用`Router.route`找到路由栈中对应的`route`,再调用`route.url`方法，传入除了`name`以外的参数。
+
+```js
+router.get('article', '/article/:id/:name', (ctx, next) => {
+  // ...
+});
+
+console.log(router.url('article', 3, 'zzh')) // /article/3/zzh
+console.log(router.url('article', { name: 'zzh', id: 3})) // /article/3/zzh
+console.log(router.url('article', [3, 'zzh'])) // /article/3/zzh
+console.log(router.url('article', 3, 'zzh', {query: {limit: 10}})) // /article/3/zzh?limit=10
+```
+
+以上的调用方式都是有效的，来看看`Layer.url`是如何处理的。
+
+```js
+Layer.prototype.url = function (params, options) {
+  var args = params;
+  var url = this.path.replace(/\(\.\*\)/g, '');
+  var toPath = pathToRegExp.compile(url);
+  var replaced;
+
+  // 针对layer.url(参数, 参数, 参数, opts)的情况
+  if (typeof params != 'object') {
+    args = Array.prototype.slice.call(arguments); // 获取所有参数（包括opts）
+    if (typeof args[args.length - 1] == 'object') { // 检查最后一项是否为opts
+      options = args[args.length - 1]; // opts赋值
+      args = args.slice(0, args.length - 1); // 去除opts，组合成[参数,参数,参数]
+    }
+  }
+
+  var tokens = pathToRegExp.parse(url); // 解析url
+  var replace = {};
+
+  // 针对layer.url(参数, 参数, 参数, opts) 和 layer.url([参数,参数,参数], opts)的情况
+  if (args instanceof Array) {
+    for (var len = tokens.length, i=0, j=0; i<len; i++) {
+      if (tokens[i].name) replace[tokens[i].name] = args[j++]; // 将匹配到 例子中的{ id: 3, name: 'zzh' }
+    }
+  } else if (tokens.some(token => token.name)) { // 存在动态路由的情况 /xx/:xx
+    replace = params;
+  } else { // 不存在动态路由的情况 /xx/xx, layer.url(opts)
+    options = params;
+  }
+
+  replaced = toPath(replace); // 填充字符串
+
+  if (options && options.query) { // 如果存在opts 如{query: {limit: 10}}
+    var replaced = new uri(replaced)
+    replaced.search(options.query); // 创建url,拼接query
+    return replaced.toString();
+  }
+
+  return replaced;
+};
+```
+
+## match
+
+传入路由与请求方法，对路由做匹配，返回匹配成功的路由对象
+
+```js
+Router.prototype.match = function (path, method) {
+  var layers = this.stack;
+  var layer;
+  var matched = {
+    path: [],
+    pathAndMethod: [],
+    route: false
+  };
+
+  for (var len = layers.length, i = 0; i < len; i++) {
+    layer = layers[i];
+
+    debug('test %s %s', layer.path, layer.regexp);
+
+    if (layer.match(path)) { // 匹配路由
+      matched.path.push(layer);
+
+      if (layer.methods.length === 0 || ~layer.methods.indexOf(method)) { // 路由没有methods或者methods中存在method
+        matched.pathAndMethod.push(layer);
+        /*
+        如果存在methods，则将route设为true
+        在Router.routes 方法中会对matched.route做验证
+        if (!matched.route) return next()
+        如果为false则会直接跳过
+        */
+        if (layer.methods.length) matched.route = true;
+      }
+    }
+  }
+
+  return matched;
+};
+```
+
+## all
+
+如果一个路由可以支持多种请求方法,可以使用`Router.all`来简化操作
+
+```js
+router.all('/article', ctx  => { ctx.body = 'article' });
+
+// GET localhost:8080/article => article
+// POST localhost:8080/article => article
+```
+
+```js
+Router.prototype.all = function (name, path, middleware) {
+  var middleware;
+
+  if (typeof path === 'string') {
+    middleware = Array.prototype.slice.call(arguments, 2);
+  } else {
+    middleware = Array.prototype.slice.call(arguments, 1);
+    path = name;
+    name = null;
+  }
+
+  this.register(path, methods, middleware, {
+    name: name
+  });
+
+  return this;
+};
+```
+
+其实现方法也比较简单，路由注册时传入了所以的请求方法`methods`。
+
+## redirect
+
+重定向
+
+```js
+Router.prototype.redirect = function (source, destination, code) {
+  // lookup source route by name
+  if (source[0] !== '/') {
+    source = this.url(source);
+  }
+
+  // lookup destination route by name
+  if (destination[0] !== '/') {
+    destination = this.url(destination);
+  }
+
+  return this.all(source, ctx => {
+    ctx.redirect(destination);
+    ctx.status = code || 301;
+  });
+};
+```
+
+`redirect`接收3个参数，分别是来源、目的和http状态码。对`source`和`destination`进行第一个字符串判断，是否是`/`来区分是路径还是路由名称。如果是是路由名称，则用`Router.url`来获取路径。注册`source`,匹配到路由时，通过`ctx.redirect`重定向到`destination`。
+
+## use
+
+`Router.use`可以用来注册中间件。
+
+例子：
+
+```js
+var forums = new Router();
+var posts = new Router();
+
+posts.get('/', (ctx, next) => {...});
+posts.get('/:pid', (ctx, next) => {...});
+forums.use('/forums/:fid/posts', posts.routes(), posts.allowedMethods());
+
+// responds to "/forums/123/posts" and "/forums/123/posts/123"
+app.use(forums.routes());
+```
+
+ ```js
+ // session middleware will run before authorize
+ router
+   .use(session())
+   .use(authorize());
+
+ // use middleware only with given path
+ router.use('/users', userAuth());
+
+ // or with an array of paths
+ router.use(['/users', '/admin'], userAuth());
+
+ app.use(router.routes());
+```
+
+中间件可以分2种
+
+1. 普通中间件函数
+2. `Router`实例
+
+如果传入的中间件是`Router`实例，那么`router`会整合所有中间件上的路由栈`stack`。如果有`path`参数，则会被作为路由前缀使用。
+
+```js
+Router.prototype.use = function () {
+  var router = this;
+  var middleware = Array.prototype.slice.call(arguments);
+  var path;
+
+  // 判断第一个参数是否是一个路由数组
+  if (Array.isArray(middleware[0]) && typeof middleware[0][0] === 'string') {
+    middleware[0].forEach(function (p) {
+      router.use.apply(router, [p].concat(middleware.slice(1)));
+    });
+
+    return this;
+  }
+
+  // 判断是否有path参数
+  var hasPath = typeof middleware[0] === 'string';
+  if (hasPath) {
+    path = middleware.shift();
+  }
+
+  
+  // 遍历中间件
+  middleware.forEach(function (m) {
+    /*
+    判断是否是Router
+    Router.routes 会给返回的dispatch函数加上 `dispatch.router = this`
+    */
+    if (m.router) {
+      // 遍历每个实例中的路由栈
+      m.router.stack.forEach(function (nestedLayer) {
+        // 如果有path参数，则设置为前缀
+        if (path) nestedLayer.setPrefix(path);
+
+        // router的配置项设置了前缀
+        if (router.opts.prefix) nestedLayer.setPrefix(router.opts.prefix);
+
+        // 将实例中的路由加入router的路由栈
+        router.stack.push(nestedLayer);
+      });
+
+      if (router.params) { // 验证params
+        Object.keys(router.params).forEach(function (key) {
+          m.router.param(key, router.params[key]);
+        });
+      }
+    } else { // 如果是普通中间件，则注册一个path为(.*)的路由
+      router.register(path || '(.*)', [], m, { end: false, ignoreCaptures: !hasPath });
+    }
+  });
+
+  return this;
+};
+```
+
+## routes
+
+```js
+Router.prototype.routes = Router.prototype.middleware = function () {
+  var router = this;
+
+  var dispatch = function dispatch(ctx, next) {
+    // ...
+  }
+
+  dispatch.router = this;
+
+  return dispatch;
+}
+```
+
+从源码中可以看到，`routes`还有一个别名`middleware`可以实现相同的功能。
+
+当路由注册完后，可以调用`router.routes`来讲路由添加到koa的中间件处理机制中。由于koa的中间是以一个函数形式存在的，所以`routes`也是返回了一个`dispatch`函数。同时`dispatch`还添加了一个`router`属性，在`Router.use`中，可以根据`router`来判断是否是一个Router实例还是普通中间件。
+
+```js
+function dispatch(ctx, next) {
+  debug('%s %s', ctx.method, ctx.path);
+
+  // 获取请求的路径
+  var path = router.opts.routerPath || ctx.routerPath || ctx.path;
+
+  // 匹配对应的 Layer 实例对象
+  var matched = router.match(path, ctx.method);
+  var layerChain, layer, i;
+
+  if (ctx.matched) {
+    ctx.matched.push.apply(ctx.matched, matched.path);
+  } else {
+    ctx.matched = matched.path;
+  }
+
+  ctx.router = router;
+
+  // 如果没有匹配对应的路由，则直接跳过
+  if (!matched.route) return next();
+
+  // 获取匹配成功的Layer实例对象
+  var matchedLayers = matched.pathAndMethod
+  var mostSpecificLayer = matchedLayers[matchedLayers.length - 1]
+  ctx._matchedRoute = mostSpecificLayer.path; // ctx._matchedRoute赋值匹配的路由path
+  if (mostSpecificLayer.name) { // ctx._matchedRouteName赋值匹配的路由name
+    ctx._matchedRouteName = mostSpecificLayer.name;
+  }
+
+  // 遍历匹配成功的Layer实例对象， 整合layer的中间件stack
+  layerChain = matchedLayers.reduce(function(memo, layer) {
+
+    // 先添加一个中间件，来为ctx添加一些路由的属性
+    memo.push(function(ctx, next) {
+      // layer.captures 获取存储路由中参数的值的数组 [id, name]
+      ctx.captures = layer.captures(path, ctx.captures);
+
+      // layer.params 获取路由参数对象 {id: 3, name: 'zzh'}
+      ctx.params = layer.params(path, ctx.captures, ctx.params);
+      ctx.routerName = layer.name;
+      return next();
+    });
+    return memo.concat(layer.stack); // 合并中间
+  }, []);
+
+  return compose(layerChain)(ctx, next); // koa-compose 来处理中间件
+};
+```
+
+可以发现在获取请求路径path时，会先从`router.opts.routerPath`, 所以前面设置了`routerPath`任何请求都会转发到`routerPath`的路由上。其次会从`ctx.routerPath`上获取，我们可以在中间件中修改`ctx.routerPath`从而实现路由的转发。
+
+## allowedMethods
+
+`allowedMethods`负责提供一个后置的METHOD检查中间件, 据当前请求的`method`进行的一些校验，并返回一些错误信息。
+
+```js
+Router.prototype.allowedMethods = function (options) {
+  options = options || {};
+  var implemented = this.methods; // 获取默认支持的http方法 默认HEAD OPTIONS GET PUT PATCH POST DELETE
+
+  // 作为koa的中间，同样返回一个function
+  return function allowedMethods(ctx, next) {
+    return next().then(function() {
+      var allowed = {};
+
+      if (!ctx.status || ctx.status === 404) { // 没有返回http状态码或404
+        
+        // 遍历匹配的路由，找出允许的method
+        ctx.matched.forEach(function (route) {
+          route.methods.forEach(function (method) {
+            allowed[method] = method;
+          });
+        });
+
+        var allowedArr = Object.keys(allowed);
+
+        if (!~implemented.indexOf(ctx.method)) { // http方法不支持
+          if (options.throw) { // 如果设置了throw
+            var notImplementedThrowable;
+
+            // 如果设置了notImplemented则执行notImplemented，否则抛出 HTTP Error
+            if (typeof options.notImplemented === 'function') {
+              notImplementedThrowable = options.notImplemented(); // set whatever the user returns from their function
+            } else {
+              notImplementedThrowable = new HttpError.NotImplemented();
+            }
+            throw notImplementedThrowable;
+          } else { // 没有设置throw则返回501 Not implemented， 设置头Allow,
+            ctx.status = 501;
+            ctx.set('Allow', allowedArr.join(', '));
+          }
+        } else if (allowedArr.length) { // 存在允许的请求方法
+          if (ctx.method === 'OPTIONS') { // 如果是OPTIONS预请求，则返回200
+            ctx.status = 200;
+            ctx.body = '';
+            ctx.set('Allow', allowedArr.join(', '));
+          } else if (!allowed[ctx.method]) { // 没有对应的method, 比如注册的是get,但是用post请求
+            if (options.throw) {
+              var notAllowedThrowable;
+              // 如果设置了methodNotAllowed则执行methodNotAllowed，否则抛出 HTTP Error
+              if (typeof options.methodNotAllowed === 'function') {
+                notAllowedThrowable = options.methodNotAllowed(); // set whatever the user returns from their function
+              } else {
+                notAllowedThrowable = new HttpError.MethodNotAllowed();
+              }
+              throw notAllowedThrowable;
+            } else { // 没有设置throw则返回405 Method not allowed， 设置头Allow,
+              ctx.status = 405;
+              ctx.set('Allow', allowedArr.join(', '));
+            }
+          }
+        }
+      }
+    });
+  };
+};
+```
