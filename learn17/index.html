@@ -8,24 +8,19 @@
 </head>
 <body>
   <h1>name: <span id="name"></span></h1>
-  <button id="button"></button>
+
   <script>
-    function ajax() {
-      const xhr = new XMLHttpRequest()
+    const xhr = new XMLHttpRequest()
       xhr.open('PUT', 'http://localhost:8081')
       xhr.setRequestHeader('Authorization', '123')
+
       xhr.onreadystatechange = function() {
         if(xhr.readyState === 4 && xhr.status === 200) {
-          console.log(xhr.responseText)
+          console.log(xhr.getResponseHeader("abc"))
           document.getElementById('name').innerHTML = xhr.responseText;
         }
       }
       xhr.send();
-    }
-
-    document.getElementById('button').onclick = function() {
-      ajax();
-    }
     
   </script>
 </body>

@@ -222,3 +222,63 @@ res.writeHead(200, {
 ![](./images/learn17_09.jpg)
 
 图中可以看到，设置了4秒有效期，在有效期内连续发送请求都不会有预检请求。
+
+## koa-cors
+
+koa-cors的简单使用
+
+```js
+const app = new Koa();
+app.use(cors({
+  // 设置Access-Control-Allow-Origin，可以是String | Function(ctx)
+  origin: 'https://www.baidu.com',
+
+  // 设置Access-Control-Allow-Methods，可以是String | Array
+  // 如果是Array,会解析成字符串用逗号分隔 PUT,DELETE,POST
+  // 默认GET,HEAD,PUT,POST,DELETE,PATCH
+  allowMethods: 'PUT',
+
+  // 设置Access-Control-Expose-Headers, 可以是String | Array
+  // 如果是Array,会解析成字符串用逗号分隔
+  exposeHeaders: 'X-test',
+
+  // 设置Access-Control-Allow-Headers, 可以是String | Array
+  // 如果是Array,会解析成字符串用逗号分隔
+  allowHeaders: 'X-test',
+
+  // 设置Access-Control-Max-Age, 可以是String | Number
+  maxAge: 4,
+
+  // 设置Access-Control-Allow-Credentials Boolean
+  // 默认false
+  credentials: true,
+
+  // 当抛出错误时是否添加头信息到err.headers对象上
+  // 默认true
+  keepHeadersOnError: true,
+}));
+```
+
+补充介绍下 `Access-Control-Expose-Headers` 和 `Access-Control-Allow-Credentials`
+
+在CORS请求时，`XMLHttpRequest`的`getResponseHeader()`方法只能获取6个字段：`Cache-Control` `Content-Language` `Content-Type` `Expires` `Last-Modified` `Pragma`。 如果想拿到其他字段，就必须在`Access-Control-Expose-Headers`里面指定。
+
+举个例子讲,在response里设置了abc的自定义头
+
+```js
+res.setHeader('abc', 111);
+```
+前端xhr对象获取Response的abc header会报错
+
+```js
+xhr.getResponseHeader("abc") // Refused to get unsafe header "abc"
+```
+
+只有当设置`Access-Control-Expose-Headers`才能获取
+
+```js
+res.setHeader('Access-Control-Expose-Headers', 'abc');
+res.setHeader('abc', 111);
+```
+
+`Access-Control-Allow-Credentials`的值是个布尔值，表示是否允许发送Cookie。
