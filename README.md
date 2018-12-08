@@ -15,3 +15,4 @@
 * [js函数节流防抖以及lodash节流防抖的实现](https://github.com/rywaroy/learn/tree/master/learn14)
 * [koa-router源码解析](https://github.com/rywaroy/learn/tree/master/learn15)
 * [js的继承](https://github.com/rywaroy/learn/tree/master/learn16)
+* [跨域CORS的实现以及koa-cors的原理](https://github.com/rywaroy/learn/tree/master/learn17)
