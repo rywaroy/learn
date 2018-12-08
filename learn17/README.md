@@ -143,12 +143,12 @@ const server = http.createServer((req, res) => {
 
 ![](./images/learn17_04.jpg)
 
-再次顺便介绍下在CORS机制中的 `简单请求` 和 `非简单请求`。
+再次顺便介绍下在CORS机制中的 `简单请求` 和 `非简单请求`。
 
-`简单请求`满足以下特征：
+`简单请求`满足以下特征：
 
-1. 请求方法只能是`HEAD` `GET` `POST`之一
-2. 请求头只能包含 `Accept` `Accept-Language` `Content-Language` `Content-Type` `DPR` `Downlink` `Save-Data` `Viewport-Width` `Width`
+1. 请求方法只能是`HEAD` `GET` `POST`之一
+2. 请求头只能包含 `Accept` `Accept-Language` `Content-Language` `Content-Type` `DPR` `Downlink` `Save-Data` `Viewport-Width` `Width`
 3. `Content-Type` 只允许 `text/plain` `multipart/form-data` `application/x-www-form-urlencoded`
 
 不满足这些特征的被称为`非简单请求`。进行非简单请求时候，浏览器会首先发出类型为OPTIONS的`预检请求`做验证。
