@@ -282,3 +282,43 @@ res.setHeader('abc', 111);
 ```
 
 `Access-Control-Allow-Credentials`的值是个布尔值，表示是否允许发送Cookie。
+
+源码
+
+```js
+module.exports = function(options) {
+
+  // 传入的配置处理
+
+  const defaults = {
+    allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH', // 设置默认的method
+  };
+
+  options = Object.assign({}, defaults, options); // 合并
+
+  if (Array.isArray(options.exposeHeaders)) { // 判断exposeHeaders, 如果是数组则用逗号分隔为字符串
+    options.exposeHeaders = options.exposeHeaders.join(',');
+  }
+
+  if (Array.isArray(options.allowMethods)) { // 判断allowMethods, 如果是数组则用逗号分隔为字符串
+    options.allowMethods = options.allowMethods.join(',');
+  }
+
+  if (Array.isArray(options.allowHeaders)) { // 判断allowHeaders, 如果是数组则用逗号分隔为字符串
+    options.allowHeaders = options.allowHeaders.join(',');
+  }
+
+  if (options.maxAge) {
+    options.maxAge = String(options.maxAge);
+  }
+
+  options.credentials = !!options.credentials;
+
+  // 设置keepHeadersOnError 默认为true
+  options.keepHeadersOnError = options.keepHeadersOnError === undefined || !!options.keepHeadersOnError;
+
+  return function cors(ctx, next) {
+    // ...
+  }
+};
+```
