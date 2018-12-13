@@ -322,3 +322,108 @@ module.exports = function(options) {
   }
 };
 ```
+
+然后是返回标准的koa中间件函数`cors`。在`cors`函数中，先是判断了配置项中是否设置了`origin`,如果没有则使用`Origin`头，代表所有请求都可以受理。再判断请求的`method`，如果是`OPTIONS`预检请求，则会额外添加`Access-Control-Max-Age` `Access-Control-Allow-Methods` `Access-Control-Allow-Headers`头。
+
+```js
+return function cors(ctx, next) {
+  // If the Origin header is not present terminate this set of steps.
+  // The request is outside the scope of this specification.
+
+  // 获取`Origin`头
+  const requestOrigin = ctx.get('Origin');
+
+  // Always set Vary header
+  // https://github.com/rs/cors/issues/10
+
+  // 设置 Vary: Origin头
+  ctx.vary('Origin');
+
+  // 如果没有Origin则跳过
+  if (!requestOrigin) {
+    return next();
+  }
+
+  let origin;
+
+  if (typeof options.origin === 'function') { // 判断options.origin是否为函数
+    // FIXME: origin can be promise
+    origin = options.origin(ctx);
+    if (!origin) {
+      return next();
+    }
+  } else { // 
+    origin = options.origin || requestOrigin;
+  }
+
+  // 同步设置header对象
+  const headersSet = {};
+
+  function set(key, value) {
+    ctx.set(key, value);
+    headersSet[key] = value;
+  }
+
+  // 判断是否是预检请求
+  if (ctx.method !== 'OPTIONS') {
+    // Simple Cross-Origin Request, Actual Request, and Redirects
+
+    set('Access-Control-Allow-Origin', origin);
+
+    if (options.credentials === true) {
+      set('Access-Control-Allow-Credentials', 'true');
+    }
+
+    if (options.exposeHeaders) {
+      set('Access-Control-Expose-Headers', options.exposeHeaders);
+    }
+
+    // 如果没有设置错误监听，则跳过
+    if (!options.keepHeadersOnError) {
+      return next();
+    }
+
+    // 监听错误，在err.headers上加入header信息
+    return next().catch(err => {
+      err.headers = Object.assign({}, err.headers, headersSet);
+      throw err;
+    });
+  } else {
+    // Preflight Request
+
+    // If there is no Access-Control-Request-Method header or if parsing failed,
+    // do not set any additional headers and terminate this set of steps.
+    // The request is outside the scope of this specification.
+    if (!ctx.get('Access-Control-Request-Method')) {
+      // this not preflight request, ignore it
+      return next();
+    }
+
+    ctx.set('Access-Control-Allow-Origin', origin);
+
+    if (options.credentials === true) {
+      ctx.set('Access-Control-Allow-Credentials', 'true');
+    }
+
+    if (options.maxAge) {
+      ctx.set('Access-Control-Max-Age', options.maxAge);
+    }
+
+    if (options.allowMethods) {
+      ctx.set('Access-Control-Allow-Methods', options.allowMethods);
+    }
+
+    let allowHeaders = options.allowHeaders;
+    if (!allowHeaders) {
+      // 如果没有allowHeaders则去Access-Control-Request-Headers头上获取
+      allowHeaders = ctx.get('Access-Control-Request-Headers');
+    }
+    if (allowHeaders) {
+      ctx.set('Access-Control-Allow-Headers', allowHeaders);
+    }
+
+    // 返回204，请求执行成功，没有主体数据
+    ctx.status = 204;
+  }
+};
+```
