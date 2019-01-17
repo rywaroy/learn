@@ -95,3 +95,61 @@ BEM规范在这里就不做详细介绍，点击链接看就可以了。来讲�
 ```
 
 多个样式文件可以放入`css`文件夹中。`MyComponent.vue`的`style`标签中引用`MyComponent.css`。这样保证不同组件的样式之间相互独立，易于维护。
+
+### css书写规范
+
+一开始我是在项目中加入`stylelint`样式检查的，不过后来嫌太麻烦，一点格式不对就直接报错，就直接去除掉了。但总体的书写规范都是基于`stylelint`规范。
+
+```css
+.a {
+  display: block;
+  background: rgba(0, 0, 0, .1);
+}
+
+/* 注释 */
+
+.b {
+  width: 100px;
+  height: 100px;
+}
+```
+
+样式与样式之间、与注释之间都有空行，类名与大括号直接有空格，属性名与值直接有空格，小数省略0等等。如果使用vscode编辑器开发的话，下载`Beautify`格式化插件，按下`command+B`快捷键就可以格式化代码。规则也跟这里的差不多，不过最后记得最后一个属性带上分号，`Beautify`是不会帮你添加的。
+
+另外公司的样式规范提到，样式还分权重的，比如`display`要比`background`权重高（更重要），所以`display`要写在前面。不过这的确太严格了，没有5、6年写css的老司机估计都养不成这样的习惯，最后还是按大家喜好来吧，写多了自然就有了自己的规范了~
+
+### 移动端适配
+
+[链接](https://juejin.im/post/5c0dd7ac6fb9a049c43d7edc)
+
+关于移动端适配已经有很多成熟的方案了，最主流的还是rem适配方案。
+
+上家公司的rem计算如下
+
+```js
+var html = document.getElementsByTagName('html')[0];
+var designFontSize = 100; // 比例
+var designWidth = 750; // 设计稿宽度
+var winWidth = document.documentElement.getBoundingClientRect().width; // document宽度
+
+var fontSize = winWidth / designWidth * designFontSize;
+html.style.fontSize = fontSize + 'px';
+```
+
+在750像素设计稿下`html`的`font-size`为`100px`。所以在设计稿，例如一个元素400像素宽度，就可以转换为`4rem`。
+
+如今的计算方案更加粗暴，不依赖js计算，直接将`html`的`font-size`为`10vw`，也就是十分之一的屏幕宽度。这样在750像素设计稿下，一个元素75像素宽度，就可以转换为`1rem`。当然，100比例的rem转换是非常直观的，但是75的比例就不一定了。。。总不能随手携带计算器（设计稿改成1000像素）吧。
+
+那工程化的东西来了，npm下载`postcss-px2rem`，配置`.postcssrc.js`
+
+```js
+module.exports = {
+  "plugins": {
+    "postcss-px2rem": { // 添加px2rem插件
+      "remUnit": 75 // 1rem像素
+    }
+  }
+}
+```
+
+使用`px2rem`转换px，style样式文件上保留设计稿像素。不过在部分安卓手机上`1px`表现得不好，1像素的边线可能看不到，所以不建议去转换1像素。可以设置忽略对应`border`转换，或者直接写成`1PX`。
