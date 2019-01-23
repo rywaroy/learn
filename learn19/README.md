@@ -175,3 +175,33 @@ module.exports = {
 ```
 
 使用`px2rem`转换px，style样式文件上保留设计稿像素。不过在部分安卓手机上`1px`表现得不好，1像素的边线可能看不到，所以不建议去转换1像素。可以设置忽略对应`border`转换，或者直接写成`1PX`。
+
+
+## js
+
+### js的书写规范
+
+使用`eslint`，选择`airbnb`规范。在初始化`vue-cli`时，会提示是否使用`eslint`。或者自己也可以全局下载`eslint`进行配置。
+
+```
+npm i -g eslint
+
+eslint -init
+```
+
+配置完成后可以在根目录下`.eslintrc.js`中，可以设置自定义规则。比如删除不习惯的规则。
+
+```js
+rules: {
+  'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+  'no-console': process.env.NODE_ENV === 'production' ? 2 : 0,
+}
+```
+
+上述例子在生产环境下开启`no-debugger`和`no-console`。属性值可是是`0` `1` `2` `off` `warn` `error`
+
+* `0` 和 `off` 表示关闭规则
+* `1` 和 `warn` 表示打开规则，作为一个警告
+* `2` 和 `error` 表示打开规则，作为一个错误
+
+如果使用vscode编辑器，可以下载`ESLint`插件，配置了`eslint`就会在代码上出现波浪线的错误提示，并且显示具体的规则，非常方便。
