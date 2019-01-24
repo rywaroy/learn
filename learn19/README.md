@@ -205,3 +205,111 @@ rules: {
 * `2` 和 `error` 表示打开规则，作为一个错误
 
 如果使用vscode编辑器，可以下载`ESLint`插件，配置了`eslint`就会在代码上出现波浪线的错误提示，并且显示具体的规则，非常方便。
+
+
+### es6
+
+来讲讲常用的es6
+
+* let 和 const
+
+  在项目中，`let`几乎可以全部替代`var`，对于不会变的常量可以使用`const`。
+
+* 模板字符串
+
+  引入模板字符串来拼接字符串会方便很多。
+
+  ```js
+    const url = `www.abc.com/article/${id}`; // url拼接
+
+    const url = `www.abc.com/article/${id ? '1' : '2'}`; // 可以处理逻辑
+
+    const url = `www.abc.com/article/${getId()}`; // 可以调用函数
+
+    const str = `1
+    2
+    3
+    4` // 换行
+  ```
+
+* 箭头函数
+
+* for of循环
+
+  ```js
+  const arr = [1, 2, 3];
+
+  for (let i = 0; i < arr.length; i++) {
+    console.log(arr);
+  }
+
+  for (const item of arr) {
+    console.log(arr);
+  }
+  ```
+
+  for of 循环要比 for 循环写起来简洁很多，且性能相差不大。
+  
+  经过测试，各种循环的性能排名： for循环 > for each ≈ for of >> map ≈ for in
+
+* 解构
+
+  解构其实并不常用，但是用到了会非常方便。。
+
+  比如在做ajax参数验证的时候，没有的参数不想提交上去，这样不得不要做一些判断
+
+  ```js
+  const params = {};
+
+  if (a) params.a = a;
+  if (b) params.a = b;
+  if (c) params.a = c;
+
+  return params;
+  ```
+
+  如果运用到解构可以这么写
+
+  ```js
+  const params = {
+    ...(a && {a: a}),
+    ...(b && {b: b}),
+    ...(c && {c: c}),
+  }
+  ```
+
+  当然可读性就差了很多。
+
+  再比如对一个数组中的值做大小判断时
+
+  ```js
+  const arr = [1, 2, 3];
+
+  Math.max.apply(Math, arr);
+
+  Math.max(...arr); // es6
+  ```
+
+* 解构赋值
+
+  解构赋值对于代码的可读性以及代码精简度都有很大的提升。例如在ajax后，对属性进行赋值
+
+  ```js
+  ajax('www.abc.com')
+    .then(res => {
+      this.a = res.data.a;
+      this.b = res.data.b;
+      this.c = res.data.c;
+      this.d = res.data.d;
+    });
+
+  // es6
+  ajax('www.abc.com')
+    .then(res => {
+      const { a, b, c, d } = res.data;
+      this.a = a;
+      this.b = b;
+      this.c = c;
+      this.d = d;
+    });
+  ```
