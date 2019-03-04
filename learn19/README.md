@@ -313,3 +313,28 @@ rules: {
       this.d = d;
     });
   ```
+
+### js注释
+
+js注释遵循[JSDoc注释规范](https://www.html.cn/doc/jsdoc/)
+
+```js
+{
+  /**
+   * 保存用户对象
+   * @param { String } name -姓名
+   * @param { Number } id -id
+   * @return { Object } -用户对象
+   */
+  save(name, id) {
+
+    // 返回用户对象
+    return {
+      name,
+      id,
+    }
+  },
+}
+```
+
+对函数（vue methods里的方法）进行代码块注释，添加基本的`param`参数注释和`return`返回值注释并说明该方法的作用。在函数内部，对一些关键、复杂的逻辑进行单行注释，说明该语句的作用。
