@@ -20,3 +20,5 @@
 * [sequelize的基础用法](https://github.com/rywaroy/learn/tree/master/learn10)
 * [算法基础](https://github.com/rywaroy/learn/tree/master/learn11)
 * [koa 源码分析](https://github.com/rywaroy/learn/tree/master/learn13)
+* 前端基础
+  1. [typeof与instanceof](https://github.com/rywaroy/learn/tree/master/learn20/typeof与instanceof.md)
