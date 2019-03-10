@@ -22,3 +22,4 @@
 * [koa 源码分析](https://github.com/rywaroy/learn/tree/master/learn13)
 * 前端基础
   1. [typeof与instanceof](https://github.com/rywaroy/learn/tree/master/learn20/typeof与instanceof.md)
+  2. [this](https://github.com/rywaroy/learn/tree/master/learn20/this.md)
