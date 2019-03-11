@@ -23,3 +23,4 @@
 * 前端基础
   1. [typeof与instanceof](https://github.com/rywaroy/learn/tree/master/learn20/typeof与instanceof.md)
   2. [this](https://github.com/rywaroy/learn/tree/master/learn20/this.md)
+  3. [bind、call、apply]()https://github.com/rywaroy/learn/tree/master/learn20/bind、call、apply.md
