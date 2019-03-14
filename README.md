@@ -25,3 +25,5 @@
   2. [this](https://github.com/rywaroy/learn/tree/master/learn20/this.md)
   3. [bind、call、apply](https://github.com/rywaroy/learn/tree/master/learn20/bind、call、apply.md)
   4. [new](https://github.com/rywaroy/learn/tree/master/learn20/new.md)
+  5. [js类型转换](https://github.com/rywaroy/learn/tree/master/learn20/js类型转换.md)
+  6. [运算符](https://github.com/rywaroy/learn/tree/master/learn20/运算符.md)
