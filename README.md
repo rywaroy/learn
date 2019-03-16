@@ -27,3 +27,6 @@
   4. [new](https://github.com/rywaroy/learn/tree/master/learn20/new.md)
   5. [js类型转换](https://github.com/rywaroy/learn/tree/master/learn20/js类型转换.md)
   6. [运算符](https://github.com/rywaroy/learn/tree/master/learn20/运算符.md)
+  7. [闭包](https://github.com/rywaroy/learn/tree/master/learn20/闭包.md)
+  8. [深浅拷贝](https://github.com/rywaroy/learn/tree/master/learn20/深浅拷贝.md)
+  9. [原型](https://github.com/rywaroy/learn/tree/master/learn20/原型.md)
