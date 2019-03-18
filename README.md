@@ -30,3 +30,5 @@
   7. [闭包](https://github.com/rywaroy/learn/tree/master/learn20/闭包.md)
   8. [深浅拷贝](https://github.com/rywaroy/learn/tree/master/learn20/深浅拷贝.md)
   9. [原型](https://github.com/rywaroy/learn/tree/master/learn20/原型.md)
+  10. [继承](https://github.com/rywaroy/learn/tree/master/learn20/继承.md)
+  11. [模块化](https://github.com/rywaroy/learn/tree/master/learn20/模块化.md)
