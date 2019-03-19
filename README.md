@@ -32,3 +32,6 @@
   9. [原型](https://github.com/rywaroy/learn/tree/master/learn20/原型.md)
   10. [继承](https://github.com/rywaroy/learn/tree/master/learn20/继承.md)
   11. [模块化](https://github.com/rywaroy/learn/tree/master/learn20/模块化.md)
+  12. [Object.defineProperty、Proxy](https://github.com/rywaroy/learn/tree/master/learn20/Object.defineProperty、Proxy.md)
+  12. [map, filter, reduce](https://github.com/rywaroy/learn/tree/master/learn20/map, filter, reduce.md)
+  
