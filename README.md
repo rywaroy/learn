@@ -1,24 +1,24 @@
 # 文章
 
-* [在webpack中使用stylelint](https://github.com/rywaroy/learn/tree/master/learn01)
-* [parcel 轻量级打包工具](https://github.com/rywaroy/learn/tree/master/learn02)
-* [vue进阶](https://github.com/rywaroy/learn/tree/master/learn03)
-* [vue-router的基础用法](https://github.com/rywaroy/learn/tree/master/learn04)
-* [vuex的基础用法](https://github.com/rywaroy/learn/tree/master/learn05)
-* [koa 中间件机制](https://github.com/rywaroy/learn/tree/master/learn12)
-* [js函数节流防抖以及lodash节流防抖的实现](https://github.com/rywaroy/learn/tree/master/learn14)
-* [koa-router源码解析](https://github.com/rywaroy/learn/tree/master/learn15)
-* [js的继承](https://github.com/rywaroy/learn/tree/master/learn16)
-* [跨域CORS的实现以及koa-cors的原理](https://github.com/rywaroy/learn/tree/master/learn17)
+* [在webpack中使用stylelint](learn01)
+* [parcel 轻量级打包工具](learn02)
+* [vue进阶](learn03)
+* [vue-router的基础用法](learn04)
+* [vuex的基础用法](learn05)
+* [koa 中间件机制](learn12)
+* [js函数节流防抖以及lodash节流防抖的实现](learn14)
+* [koa-router源码解析](learn15)
+* [js的继承](learn16)
+* [跨域CORS的实现以及koa-cors的原理](learn17)
 
 
 # 学习笔记
 
-* [Array](https://github.com/rywaroy/learn/tree/master/learn06)
-* [Object.defineProperty](https://github.com/rywaroy/learn/tree/master/learn07)
-* [Promise对象](https://github.com/rywaroy/learn/tree/master/learn09)
-* [sequelize的基础用法](https://github.com/rywaroy/learn/tree/master/learn10)
-* [算法基础](https://github.com/rywaroy/learn/tree/master/learn11)
+* [Array](learn06)
+* [Object.defineProperty](learn07)
+* [Promise对象](learn09)
+* [sequelize的基础用法](learn10)
+* [算法基础](learn11)
 * [koa 源码分析](learn13)
 * 前端基础
   * [typeof与instanceof](learn20/typeof与instanceof.md)
