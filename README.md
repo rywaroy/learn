@@ -39,3 +39,5 @@
   * [Promise](learn20/Promise.md)
   * [async、await](learn20/async、await.md)
   * [EventLoop](learn20/EventLoop.md)
+  * [0.1+0.2!=0.3](learn20/0.1+0.2!=0.3.md)
+  * [js垃圾回收机制](learn20/js垃圾回收机制.md)
