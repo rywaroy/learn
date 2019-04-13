@@ -47,3 +47,5 @@
   * [web安全之XSS](learn20/web安全之XSS.md)
   * [webpack性能优化](learn20/webpack性能优化.md)
   * [webpack模块化原理](learn20/webpack模块化原理.md)
+  * [前端性能能监控](learn20/前端性能监控.md)
+  * [前端性能能监控](learn20/前端错误监控.md)
