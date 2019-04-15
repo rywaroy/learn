@@ -35,6 +35,7 @@
   * [Object.defineProperty、Proxy](learn20/Object.defineProperty、Proxy.md)
   * [map,filter,reduce](learn20/map,filter,reduce.md)
   * [setTimeout,setInterval和requestAnimationFrame](learn20/setTimeout,setInterval和requestAnimationFrame.md)
+  * [防抖节流](learn20/防抖节流.md)
   * [Generator](learn20/Generator.md)
   * [Promise](learn20/Promise.md)
   * [async、await](learn20/async、await.md)
@@ -52,4 +53,4 @@
   * [TCP、UDP](learn20/TCP、UDP.md)
   * [SSL、TLS](learn20/SSL、TLS.md)
   * [http](learn20/http.md)
-  * [输入 URL 到页面渲染的整个流程](learn20/输入 URL 到页面渲染的整个流程.md)
+  * [输入URL到页面渲染的整个流程](learn20/输入URL到页面渲染的整个流程.md)
