@@ -11,6 +11,7 @@
 * [js的继承](learn16)
 * [跨域CORS的实现以及koa-cors的原理](learn17)
 * [git-flow分支](learn21)
+* [webpack4.0配置详细介绍](learn22)
 
 
 # 学习笔记
