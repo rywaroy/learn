@@ -280,4 +280,6 @@ module.exports = {
 }
 ```
 
+### file-loader/url-loader
+
 
