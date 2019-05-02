@@ -60,3 +60,4 @@
   * [BOM](learn20/BOM.md)
   * [DOM](learn20/DOM.md)
   * [XMLHttpRequest](learn20/XMLHttpRequest.md)
+  * [Object.create和Object.assign](learn20/Object.create和Object.assign.md)
