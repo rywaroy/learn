@@ -282,4 +282,4 @@ module.exports = {
 
 ### file-loader/url-loader
 
-
+`file-loader`是用来打包文件返回其公共URL，如图片字体等。`url-loader`在`file-loader`打包文件的基础上，又增加了可以指定文件大小，小文件则会返回DataURL。
