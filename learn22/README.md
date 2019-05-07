@@ -283,3 +283,32 @@ module.exports = {
 ### file-loader/url-loader
 
 `file-loader`是用来打包文件返回其公共URL，如图片字体等。`url-loader`在`file-loader`打包文件的基础上，又增加了可以指定文件大小，小文件则会返回DataURL。
+
+
+下载`url-loader`
+
+```
+npm i url-loader -D
+```
+
+添加配置文件的rules，针对图片文件（后缀为png、jpg、gif）进行处理，设置limit为8192表示8kb以下的图片将打包成DataURL。处理字体等文件同理。
+
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.(png|jpg|gif)$/,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 8192
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+```
