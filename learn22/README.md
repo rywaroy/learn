@@ -312,3 +312,44 @@ module.exports = {
   }
 }
 ```
+
+## Plugins
+
+webpack 有着丰富的插件接口(rich plugin interface)。webpack 自身的多数功能都使用这个插件接口。这个插件接口使 webpack 变得极其灵活。
+
+### ExtractTextWebpackPlugin
+
+在js中引入css，打包后会将样式内嵌到js bundle中，当js过大加载比较慢时，样式无法及时展示，导致网站排版错乱闪烁。于是可以使用`ExtractTextWebpackPlugin`来分离引用到的`*.css`文件，把样式放到一个单独的css文件。
+
+安装
+
+```
+npm i extract-text-webpack-plugin@next -D
+```
+
+> 这里使用最新的beta版，当前版本不支持webpack4，打包会出现Tapable.plugin is deprecated. Use new API on `.hooks` instead的错误
+
+修改之前css loader的配置
+
+```js
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.(sa|c|sc)ss$/,
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: ['css-loader', 'postcss-loader', 'sass-loader']
+        })
+      }
+    ]
+  },
+  plugins: [
+    new ExtractTextPlugin("styles.css"),
+  ]
+}
+```
+
+最终在dist目录下打包分离出名为`styles.css`的样式文件。
