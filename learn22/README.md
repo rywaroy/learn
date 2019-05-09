@@ -353,3 +353,127 @@ module.exports = {
 ```
 
 最终在dist目录下打包分离出名为`styles.css`的样式文件。
+
+
+### HtmlWebpackPlugin
+
+之前是用自己手写的`index.html`文件，再引入dist目录下打包生成的`main.js`。如果在打包生成的js上带上hash，每次打包每次都要修改html引用的js，这未免太麻烦了。`HtmlWebpackPlugin`插件会帮你生成一个html文件，并且直接引用打包出来的js、css等文件
+
+下载
+
+```
+npm i html-webpack-plugin -D
+```
+
+添加插件
+
+```js
+plugins: [
+  new HtmlWebpackPlugin({
+    filename: 'index.html', // 生成的html文件名
+    template: './src/index.html', // 引用的html文件模板
+  }),
+]
+```
+
+去除`index.html`中引用的js
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <div class="app"></div>
+  <!-- <script src="../dist/main.js"></script> -->
+</body>
+</html>
+```
+
+打包后，在dist目录下会生成`index.html`的文件，里面已经自动link打包出来的样式文件以及引入main.js（这里加入了hash作为区别）
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+<link href="styles.css" rel="stylesheet"></head>
+<body>
+  <div class="app"></div>
+  <!-- <script src="../dist/main.js"></script> -->
+<script type="text/javascript" src="main.f63089c7eac9c487ee21.js"></script></body>
+</html>
+```
+
+这里再介绍下其他配置
+
+#### inject
+
+inject有四个值 `true` `body` `head` `false`
+
+* `true` 默认值，script标签位于html文件的 body 底部
+* `body` script标签位于html文件的 body 底部
+* `head` script标签位于html文件的 head中
+* `false` 不插入生成的js文件
+
+#### favicon
+
+给你生成的html文件生成一个 `favicon` ,值是一个路径
+
+```js
+plugins: [
+  new HtmlWebpackPlugin({
+      favicon: './favicon.ico'
+  }) 
+]
+```
+
+生成的html文件会添加
+
+```html
+<link rel="shortcut icon" href="favicon.ico">
+```
+
+#### minify
+
+`minify`是用来配置html压缩，`html-webpack-plugin`内部集成了 [`html-minifier`](https://github.com/kangax/html-minifier)
+
+```js
+// vue-cli中的html-webpack-plugin配置
+
+new HtmlWebpackPlugin({
+  minify: {
+    removeComments: true, // 移除注释
+    collapseWhitespace: true, // 移除空格
+    removeAttributeQuotes: true // 移除属性的引号
+    // more options:
+    // https://github.com/kangax/html-minifier#options-quick-reference
+  },
+}),
+```
+
+#### chunks
+
+chunks主要用于多入口文件，当你有多个入口文件，那就回编译后生成多个打包后的文件，那么chunks 就能选择你要使用那些js文件
+
+```js
+module.exports = {
+  entry: {
+    main: './src/index.js',
+    a: './a.js',
+    b: './b.js',
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      chunks: ['main', 'b'], // 排除a
+    }),
+  ]
+}
+```
