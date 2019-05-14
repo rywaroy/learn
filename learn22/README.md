@@ -477,3 +477,36 @@ module.exports = {
   ]
 }
 ```
+
+## devServer
+
+webpack可以通过`webpack-dev-server`开启热更新，增加开发效率
+
+下载`webpack-dev-server`
+
+```
+npm i webpack-dev-server -D
+```
+
+在package.json中添加脚本
+
+```json
+"scripts": {
+  "dev": "webpack-dev-server"
+},
+```
+
+配置`webpack.config.js`，添加devServer
+
+```js
+module.exports = {
+  devServer: {
+    contentBase: path.join(__dirname, "dist"), // 目录
+    compress: true, // 是否开启gzip压缩
+    port: 8080, // 端口
+    open: true // 是否开启浏览器
+  },
+}
+```
+
+最后运行`npm run dev`命令就可以开启热更新，具体详情参考[webpack devServer API](https://www.webpackjs.com/configuration/dev-server/)
