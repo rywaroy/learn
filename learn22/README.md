@@ -509,4 +509,28 @@ module.exports = {
 }
 ```
 
-最后运行`npm run dev`命令就可以开启热更新，具体详情参考[webpack devServer API](https://www.webpackjs.com/configuration/dev-server/)
+最后运行`npm run dev`命令就可以开启热更新
+
+在开发中，当修改代码，文件发生变化，就会刷新当前页面。但有时也会带来不便，比如更了css样式文件，也会刷新页面，于是可以开启模块热更新
+
+修改devServer配置，添加webpack内置的`HotModuleReplacementPlugin`插件
+
+```js
+const webpack = require('webpack');
+
+module.exports = {
+  devServer: {
+    contentBase: path.join(__dirname, "dist"), // 目录
+    compress: true, // 是否开启gzip压缩
+    port: 8080, // 端口
+    open: true, // 是否开启浏览器
+    hot: true, // 启用 webpack 的模块热更新
+    hotOnly: true, // 失败也不会刷新页面
+  },
+  plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+  ],
+}
+```
+
+具体详情参考[webpack devServer API](https://www.webpackjs.com/configuration/dev-server/)
