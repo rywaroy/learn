@@ -313,6 +313,164 @@ module.exports = {
 }
 ```
 
+### babel
+
+现在的开发环境中，es6语法简洁可读性强，已经是必不可少的。但是在大部分浏览器中并不能兼容es6,而babel可以帮助我们将es6转换为es5。
+
+首先下载`babel-loader` `babel-core`
+
+```
+npm i babel-loader @babel/core -D
+```
+
+在`webpack.config.js`添加配置
+
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: "babel-loader"
+      }
+    ]
+  },
+}
+```
+
+下载`@babel/preset-env`
+
+```
+npm i @babel/preset-env -D
+```
+
+添加`options`
+
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: "babel-loader",
+        options: {
+          "presets": ["@babel/preset-env"]
+        }
+      }
+    ]
+  },
+}
+```
+
+可以新增一个babel配置文件`.babelrc`
+
+```json
+{
+  "presets": ["@babel/preset-env"]
+}
+```
+
+添加es6语法，打包
+
+```js
+// index.js
+
+class A {
+  constructor() {
+    console.log('test class')
+    this.list = [1,2,3,4];
+  }
+
+  mapArray() {
+    this.list.map(item => {
+      console.log(item);
+    });
+    console.log(this.list.includes(1));
+  }
+}
+
+const a = new A();
+a.mapArray();
+```
+
+但是babel默认只转换js语法，而不转换新的API，比如Iterator、Generator、Set、Maps、Proxy、Reflect、Symbol、Promise等全局对象，以及一些定义在全局对象上的方法（比如Object.assign）都不会转码。例如上述es6在Array对象新增的`includes`方法，就不会被转换。所以这里必须要配合`babel-polyfill`
+
+```
+npm i @babel/polyfill -S
+```
+
+这里可以在你的业务代码中`require("@babel/polyfill")`，也可以在`webpack.config.js`入口中配置
+
+```js
+module.exports = {
+  entry: {
+    main: ['@babel/polyfill', './src/index.js']
+  },
+}
+```
+
+打包后发现`main.js`从原来的35KB变成485KB，`@babel/polyfill`被完全引入。
+
+所以我们可以按需加载polyfill,修改`.babelrc`,添加`useBuiltIns`配置
+
+```json
+{
+  "presets": [
+    ["@babel/preset-env", {
+      "useBuiltIns": "usage"
+    }]
+  ]
+}
+```
+
+`useBuiltIns`默认为`false`，可选有三种
+
+* `false`: 不对polyfills做任何操作
+* `entry`: 根据target中浏览器版本的支持，将polyfills拆分引入，仅引入有浏览器不支持的polyfill
+* `usage`: 检测代码中ES6/7/8等的使用情况，仅仅加载代码中用到的polyfills
+
+打包后，`main.js`的体积变为72KB
+
+polyfill会修改全局作用，比如像Promise这样的新类就是挂载在全局上的，这样就会污染了全局命名空间。在打包一些第三方库打包时，会配合使用`transform-runtime`
+
+```
+npm i @babel/plugin-transform-runtime -D
+```
+
+```
+npm i @babel/runtime -S
+```
+
+配置`.babelrc`
+
+```json
+{
+  "plugins": ["@babel/plugin-transform-runtime"]
+}
+```
+
+可配置选项
+
+```json
+{
+  "plugins": [
+    [
+      "@babel/plugin-transform-runtime",
+      {
+        "corejs": false,
+        "helpers": true,
+        "regenerator": true,
+        "useESModules": false
+      }
+    ]
+  ]
+}
+```
+
+
+
 ## Plugins
 
 webpack 有着丰富的插件接口(rich plugin interface)。webpack 自身的多数功能都使用这个插件接口。这个插件接口使 webpack 变得极其灵活。
