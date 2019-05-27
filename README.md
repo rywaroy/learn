@@ -64,3 +64,4 @@
   * [content-type](learn20/content-type.md)
   * [前端路由](learn20/前端路由.md)
   * [移动端适配](learn20/移动端适配.md)
+  * [柯里化](learn20/柯里化.md)
