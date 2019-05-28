@@ -280,6 +280,33 @@ module.exports = {
 }
 ```
 
+**purgecss**
+
+`purgecss`可以检测去除不必要的css样式，这里简单介绍下配合postcss的配置
+
+下载postcss插件
+
+```
+npm i @fullhuman/postcss-purgecss -D
+```
+
+添加配置
+
+```js
+module.exports = {
+  "plugins": {
+    '@fullhuman/postcss-purgecss': {
+      content: ['index.html', '**/*.js', '**/*.html', '**/*.vue'], // 需要检测的文件路径
+      whitelist: ["html", "body"], // 白名单
+      whitelistPatterns: [], // 正则匹配白名单
+    },
+  }
+}
+```
+
+但是在多数人反馈，去除多余css并不容易。动态插入的class是无法解析，只能依赖白名单防止动态插入的类名被过滤。所以是否使用`purgecss`还得看具体场景，项目维护成本。
+
+
 ### file-loader/url-loader
 
 `file-loader`是用来打包文件返回其公共URL，如图片字体等。`url-loader`在`file-loader`打包文件的基础上，又增加了可以指定文件大小，小文件则会返回DataURL。
@@ -468,6 +495,10 @@ npm i @babel/runtime -S
   ]
 }
 ```
+
+
+
+
 
 
 
