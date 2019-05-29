@@ -723,3 +723,72 @@ module.exports = {
 ```
 
 具体详情参考[webpack devServer API](https://www.webpackjs.com/configuration/dev-server/)
+
+## 代码分割
+
+假设我们在业务中用到了类似`jquery` `lodash` 等库，并且写了大量的业务代码，最后打包成一个`main.js`发布上线。但是由于功能迭代，业务代码也经常更新，用户只能一并下载更新包含各种类库的`main.js`。代码分割则可以让我们把类似`jquery` `lodash` `vue` `react` 等基本不会变动的库、框架与业务代码划分开来，这样业务的更新迭代，用户也只用更新含业务代码的文件即可。
+
+在webpack4中，可以配置`optimization.splitChunks`开启代码分割功能。
+
+在`webpack.config.js`中添加官网示例的配置
+
+```js
+module.exports = {
+  //...
+  optimization: {
+    splitChunks: {
+      chunks: 'all', // all: 所有 initial: 分割同步代码 async：分割异步代码
+      minSize: 30000, // 大于30k则会分割代码
+      maxSize: 0, // 超过最大文件体积则会再次分割代码
+      minChunks: 1, // 至少被引用过1次
+      maxAsyncRequests: 5, // 最多被分割次数
+      maxInitialRequests: 3, // 入口文件最多分割次数
+      automaticNameDelimiter: '~', // 文件名连接符
+      name: true,
+      cacheGroups: { // 分割同步代码的规则
+        vendors: {
+          test: /[\\/]node_modules[\\/]/, // 在node_modules文件下，代表第三方库
+          priority: -10, // 优先级
+        },
+        default: {
+          minChunks: 2,
+          priority: -20,
+          reuseExistingChunk: true // 检查相互依赖的模块，不会重复分割
+        }
+      }
+    }
+  }
+};
+```
+
+在`index.js`中引入`jquery` 和 `ladash`，开始打包。之后在dist文件就会出现`vendors~main.hash.js`，里面则包含着`jquery` `ladash` 模块。
+
+同时也可以支持异步代码分割，修改`index.js`
+
+```js
+import $ from 'jquery';
+
+function useLoadsh() {
+  import('lodash').then(_ => {
+    console.log(_)
+  });
+}
+
+useLoadsh();
+```
+
+打包之前添加babel插件支持动态导入文件
+
+```
+npm i babel-plugin-dynamic-import-webpack --D
+```
+
+配置 `.babelrc`
+
+```js
+{
+  "plugins": ["dynamic-import-webpack"]
+}
+```
+
+打包后在dist文件下，额外出现了`0.hash.js`文件，里面则是`lodash`模块，同时在`vendors~main.hash.js`文件里也不存在`lodash`内容。
