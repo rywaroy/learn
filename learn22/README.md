@@ -667,6 +667,27 @@ module.exports = {
 }
 ```
 
+### ProvidePlugin
+
+在业务开发中，我们可能会频繁地用到类似`jquery`等类库。对此可以使用webpack自带的定义全局变量的插件`ProvidePlugin`
+
+```js
+module.exports = {
+  plugins: [
+    new webpack.ProvidePlugin({
+      $: 'jquery'
+    }),
+  ]
+}
+```
+
+这样当使用到`$`变量时，webpack会帮你自动添加
+
+```js
+import $ from 'jquery';
+```
+
+
 ## devServer
 
 webpack可以通过`webpack-dev-server`开启热更新，增加开发效率
