@@ -496,11 +496,56 @@ npm i @babel/runtime -S
 }
 ```
 
+### TypeScript
 
+webpack同时支持typescript文件的打包，需要配置对应的ts-loader
 
+下载`ts-loader`和`typescript`
 
+```
+npm i ts-loader typescript -D
+```
 
+配置`webpack.config.js`
 
+```js
+const path = require('path');
+
+module.exports = {
+  mode: 'development',
+  entry: {
+    main: './src/index.ts'
+  },
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        loader: "ts-loader",
+      },
+    ]
+  },
+  output: {
+		filename: '[name].js',
+    path: path.resolve(__dirname, 'dist'),
+  },
+}
+```
+
+添加typescript的配置文件`tsconfig.json`
+
+```json
+{
+  "compilerOptions": {
+    "module": "es6",
+    "target": "es5"
+  }
+}
+```
+
+tsconfig.json配置详情参考 (typescript中文网)[https://www.tslang.cn/docs/handbook/compiler-options.html]
+
+运行webpack即可将ts文件打包生成js
 
 ## Plugins
 
