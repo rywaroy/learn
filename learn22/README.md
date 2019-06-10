@@ -800,6 +800,9 @@ module.exports = {
       '/api': { // 将带有`/api`的请求转发到`www.xxx.com`域名下
         target: 'www.xxx.com',
         secure: false, // https 需要配置
+        pathRewrite: {
+          'a': 'b', // 路径重写，请求/api/a -> /api/b
+        },
       }
     }
   },
