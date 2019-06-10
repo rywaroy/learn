@@ -788,6 +788,24 @@ module.exports = {
 }
 ```
 
+`proxy`代理
+
+开发中可能遇到跨域的问题，可以配置devServer的proxy来设置代理
+
+```js
+module.exports = {
+  devServer: {
+    //...
+    proxy: {
+      '/api': { // 将带有`/api`的请求转发到`www.xxx.com`域名下
+        target: 'www.xxx.com',
+        secure: false, // https 需要配置
+      }
+    }
+  },
+}
+```
+
 具体详情参考[webpack devServer API](https://www.webpackjs.com/configuration/dev-server/)
 
 ## 代码分割
