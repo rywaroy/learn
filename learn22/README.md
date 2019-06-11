@@ -496,6 +496,60 @@ npm i @babel/runtime -S
 }
 ```
 
+### ESlint
+
+多人项目开发，统一代码风格是很有必要的，一般用eslint作为检验工具，这里来介绍下eslint的配置。
+
+下载eslint，初始化
+
+```
+npm i eslint -D
+```
+
+```
+npx eslint --init
+```
+
+命令行中会出现各种风格的选择等等，我这里采用airbnb的编码风格。然后当前目录下会生成`.eslitrc.js`文件（如果选择了js配置文件）
+
+运行
+
+```
+npx eslint src
+```
+
+就可以检测在src目录下的js文件编码规范。
+
+如果你使用的是vscode编辑器，也可以下载eslint插件，直接在代码中警告错误。如果某些规范不想准守，可以添加`.eslitrc.js`中的`rules`的属性
+
+```js
+"rules": {
+  'no-console': 0, // 禁止console.log  0： 忽略   1：警告   2：报错
+}
+```
+
+假如感觉在开发中手动去检测代码规范太麻烦，可以在webpack中配置`eslint-loader`
+
+```
+npm i eslint-loader -D
+```
+
+在`webpack.config.js`中配置loader，同时也可以在devSever中开启`overlay: true`来辅助提示报错。
+
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: ["babel-loader", "eslint-loader"]
+      }
+    ]
+  }
+};
+```
+
 ### TypeScript
 
 webpack同时支持typescript文件的打包，需要配置对应的ts-loader
