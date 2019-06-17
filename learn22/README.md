@@ -597,7 +597,7 @@ module.exports = {
 }
 ```
 
-tsconfig.json配置详情参考 (typescript中文网)[https://www.tslang.cn/docs/handbook/compiler-options.html]
+tsconfig.json配置详情参考 [typescript中文网](https://www.tslang.cn/docs/handbook/compiler-options.html)
 
 运行webpack即可将ts文件打包生成js
 
