@@ -54,7 +54,7 @@ module.exports = {
 下载`AddAssetHtmlWebpackPlugin`（webapck3需要2.x版本），利用该插件将刚刚打包好的全局依赖文件`global.dll.[hash].js`置入打包好的html文件中。
 
 ```
-npm i add-asset-html-webpack-plugin
+npm i add-asset-html-webpack-plugin -D
 ```
 
 ```js
