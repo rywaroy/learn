@@ -14,6 +14,7 @@ module.exports = {
 	mode: 'production',
 	entry: {
 		global: ['vue', 'react', 'jquery'],
+		// global: ['vue/dist/vue.esm.js', 'react', 'jquery'], // 在vue-cli2 中 vue 对应的是 vue/dist/vue.esm.js
 	},
 	output: {
 		filename: '[name].dll.[hash].js',
