@@ -117,31 +117,102 @@ global.dll.c2a0807582e4470811bc.js    163 KiB           [emitted]
 
 ## 公用依赖包缓存优化
 
-利用vue-cli3 创建`project1` 和 `project2`文件作为测试。 下载`jquery`和`lodash`依赖，并修改模板文件`Home.vue`
-
-```html
-<template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-    <p class="message"></p>
-  </div>
-</template>
-```
+利用vue-cli3 创建`project1` 和 `project2`文件作为测试。 下载 `webpack` `webpack-cli` `jquery` `lodash`依赖，修改`main.js`文件加入依赖
 
 ```js
+import Vue from 'vue';
+import App from './App.vue';
+import router from './router';
+import store from './store';
 import $ from 'jquery';
 import _ from 'lodash';
 
-export default {
-  mounted() {
-    this.$nextTick(() => {
-      $('.message').html(_.join(['hellow', 'project1'], ' '));
-    });
-  },
-};
+Vue.config.productionTip = false;
+
+new Vue({
+  router,
+  store,
+  render: h => h(App),
+}).$mount('#app');
+
+$('body').css('background', 'red'); // 判断jquery是否引用
 ```
 
-运行`npm run serve`，在about页面上会出现hellow project1文字。
+
+运行`npm run serve`，首页背景变红。
 
 接下来将`vue` `vue-router` `jquery` `lodash`提取出来，新建`webpack.dll.js`，配置内容如上文。运行生成dll文件夹。
+
+添加`vue.config.js`配置文件，添加`DllReferencePlugin` 和 `AddAssetHtmlWebpackPlugin` 插件，打包生成dist文件夹。
+
+```js
+const webpack = require('webpack');
+const path = require('path');
+const AddAssetHtmlWebpackPlugin = require('add-asset-html-webpack-plugin');
+
+module.exports = {
+  publicPath: process.env.NODE_ENV === 'production'
+    ? '/project1'
+    : '/',
+  configureWebpack: config => {
+    if (process.env.NODE_ENV === 'production') {
+      // 为生产环境修改配置...
+      return {
+        plugins: [
+          new webpack.DllReferencePlugin({
+            manifest: path.resolve(__dirname, './dll/global.manifest.json')
+          }),
+          new AddAssetHtmlWebpackPlugin({
+            filepath: path.resolve(__dirname, './dll/global.dll.48bcad28143704e842c1.js'),
+            publicPath: 'http://static.3zsd.com'
+          }),
+        ]
+      }
+    } else {
+      // 为开发环境修改配置...
+    }
+  }
+}
+```
+
+将project1项目中的dll文件夹复制给project2项目，配置project2项目的`vue.config.js`，打包生成dist文件
+
+```js
+const webpack = require('webpack');
+const path = require('path');
+const AddAssetHtmlWebpackPlugin = require('add-asset-html-webpack-plugin');
+
+module.exports = {
+  publicPath: process.env.NODE_ENV === 'production'
+    ? '/project2'
+    : '/',
+  configureWebpack: config => {
+    if (process.env.NODE_ENV === 'production') {
+      // 为生产环境修改配置...
+      return {
+        plugins: [
+          new webpack.DllReferencePlugin({
+            manifest: path.resolve(__dirname, './dll/global.manifest.json')
+          }),
+          new AddAssetHtmlWebpackPlugin({
+            filepath: path.resolve(__dirname, './dll/global.dll.48bcad28143704e842c1.js'),
+            publicPath: 'http://static.3zsd.com'
+          }),
+        ]
+      }
+    } else {
+      // 为开发环境修改配置...
+    }
+  }
+}
+```
+
+启一个服务先后访问`localhost:9999/project1` 和 `localhost:9999/project2`
+
+在project1中，打开控制台可以看到`global.dll.js`文件没有缓存
+
+![](learn23_01.jpg)
+
+在project2中，`global.dll.js`文件已经from dist cache，说明缓存成功
+
+![](learn23_02.jpg)
