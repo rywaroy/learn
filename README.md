@@ -12,6 +12,7 @@
 * [跨域CORS的实现以及koa-cors的原理](learn17)
 * [git-flow分支](learn21)
 * [webpack4.0配置详细介绍](learn22)
+* [利用DllPlugin来优化webpack打包速度以及多个项目公用依赖包缓存优化](learn23)
 
 
 # 学习笔记
