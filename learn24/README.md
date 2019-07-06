@@ -28,3 +28,9 @@ vue初始化时，在vue.options中添加filters directives components 空对象
 响应式对象
 
 vue初始化中，会调用initState方法，对 props data 中的对象进行响应式处理，利用Object.defineProperty对数据进行监听。遍历所有属性，如果是该属性的值是对象，则会深度遍历下去。调用defineReactive方法对 对象以及它键值添加简体。
+
+---------
+
+依赖收集
+
+在Object.defineProperty处理中，vue会在get中进行依赖收集。在触发render方法，会访问的模板中的属性，触发属性的get，收集到当前的依赖。在render过程中，会调用cleanupDeps方法进行判断，清除模板中失效的依赖提高性能。
