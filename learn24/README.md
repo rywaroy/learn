@@ -17,3 +17,9 @@ Vue.mixins方法调用mergeOption合并配置。mergeOption方法中，判断被
 vue初始化时，在vue.options中添加filters directives components 空对象属性。vue创建子组件时，会将父组件实例传递下去，子组件的会合并父组件的options赋值给自己的$options，所以全局的filters directives components，所有子组件都会注册。
 
 
+--------
+
+组件注册
+
+组件初始化中，会将options对象中的components的组件对象转化为组件的构造函数。在组件init初始化中，在merge options时会调用 resolveConstructorOptions 方法。里面判断了是否存在option.name，如果存在，就会在options的components对象上加上上components[option.name]，所以配置了name属性的组件，自身就会注册自身组件。
+
