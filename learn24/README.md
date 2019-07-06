@@ -23,3 +23,8 @@ vue初始化时，在vue.options中添加filters directives components 空对象
 
 组件初始化中，会将options对象中的components的组件对象转化为组件的构造函数。在组件init初始化中，在merge options时会调用 resolveConstructorOptions 方法。里面判断了是否存在option.name，如果存在，就会在options的components对象上加上上components[option.name]，所以配置了name属性的组件，自身就会注册自身组件。
 
+--------
+
+响应式对象
+
+vue初始化中，会调用initState方法，对 props data 中的对象进行响应式处理，利用Object.defineProperty对数据进行监听。遍历所有属性，如果是该属性的值是对象，则会深度遍历下去。调用defineReactive方法对 对象以及它键值添加简体。
