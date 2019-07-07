@@ -34,3 +34,11 @@ vue初始化中，会调用initState方法，对 props data 中的对象进行�
 依赖收集
 
 在Object.defineProperty处理中，vue会在get中进行依赖收集。在触发render方法，会访问的模板中的属性，触发属性的get，收集到当前的依赖。在render过程中，会调用cleanupDeps方法进行判断，清除模板中失效的依赖提高性能。
+
+
+------
+
+派发更新
+
+当数据发送变化，触发set，调用dep.notify()方法通知订阅者。在notify中，会遍历dep中的subs数组中的watcher，调用watcher的update方法。update中会调用queueWatcher方法，把watcher推入栈中，在nextTick后调用watcher的run方法，重新渲染。
+
