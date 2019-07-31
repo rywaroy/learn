@@ -40,5 +40,5 @@ vue初始化中，会调用initState方法，对 props data 中的对象进行�
 
 派发更新
 
-当数据发送变化，触发set，调用dep.notify()方法通知订阅者。在notify中，会遍历dep中的subs数组中的watcher，调用watcher的update方法。update中会调用queueWatcher方法，把watcher推入栈中，在nextTick后调用watcher的run方法，重新渲染。  
+当数据发送变化，触发set，调用dep.notify()方法通知订阅者。在notify中，会遍历dep中的subs数组中的watcher，调用watcher的update方法。update中会调用queueWatcher方法，把watcher推入栈中，在nextTick后调用watcher的run方法，重新渲染。   
 
